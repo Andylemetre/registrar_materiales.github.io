@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Artículos - WhatsApp</title>
+    <title>Gestor de Artículos y Equipos - WhatsApp</title>
     <style>
         * {
             margin: 0;
@@ -20,11 +20,17 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -66,16 +72,20 @@
             margin-bottom: 8px;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s ease;
+            background-color: white;
+            cursor: pointer;
         }
 
-        input:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -168,7 +178,7 @@
             flex: 1;
             overflow-y: auto;
             margin-bottom: 24px;
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.8;
             color: #1e293b;
         }
@@ -184,10 +194,19 @@
         .preview-title {
             font-weight: bold;
             margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .preview-section-title {
+            font-weight: bold;
+            color: #059669;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            font-size: 13px;
         }
 
         .preview-item {
-            margin: 8px 0;
+            margin: 4px 0;
         }
 
         .preview-footer {
@@ -223,27 +242,32 @@
             background: #d1d5db;
             cursor: not-allowed;
         }
+
+        .section-divider {
+            border-bottom: 1px solid #e2e8f0;
+            margin: 12px 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Sección de Entrada -->
+        <!-- Sección de Artículos -->
         <div class="card">
-            <h1>Registro de Artículos</h1>
-            <p class="subtitle">Registra tus artículos y cantidad</p>
+            <h1>📦 Artículos</h1>
+            <p class="subtitle">Registra artículos y cantidad</p>
 
             <div class="form-group">
-                <label for="nombre">Nombre del Artículo</label>
-                <select id="nombre" onchange="if(event.key !== 'Enter') verificarSeleccion()">
+                <label for="nombreArticulo">Nombre del Artículo</label>
+                <select id="nombreArticulo">
                     <option value="">-- Selecciona un artículo --</option>
                     <option value="Grampas_Blanca">Grampas Blancas RG6</option>
                     <option value="Grampas_Negras">Grampas Negras RG6</option>
                     <option value="Grampas_Negras_Cable_Drop">Grampas Negras Cable Drop</option>
                     <option value="Tornillos">Tornillos</option>
                     <option value="Tarugos">Tarugos</option>
-                    <option value="Pasa Cable Blanco">Pasa Cable Blanco</option>
-                    <option value="Pasa Cable Negro">Pasa Cable Negro</option>
+                    <option value="Pasa_Cable_Blanco">Pasa Cable Blanco</option>
+                    <option value="Pasa_Cable_Negro">Pasa Cable Negro</option>
                     <option value="Fichas_amarillas">Fichas Amarillas</option>
                     <option value="Telefonos_Operaciones">Telefonos Operaciones</option>
                     <option value="Jumper">Jumper</option>
@@ -252,125 +276,64 @@
                     <option value="Kit_Nap">Kit Nap</option>
                     <option value="Latiguillos90">Latiguillos de 90</option>
                     <option value="Latiguillos120">Latiguillos de 120</option>
-                    <option value="Latiguillos120">Latiguillos de 120</option>
                     <option value="Latiguillos500">Latiguillos de 500</option>
                     <option value="Latiguillos1000">Latiguillos de 1000</option>
                     <option value="Cable_utp_gris6">Cable utp gris Cat 6</option>
                     <option value="Cable_utp_gris7">Cable utp Cat 7</option>
-                    <option value="Conector_Rj45_6">Conector_Rj45 Cat 6</option>
-                    <option value="Conector_Rj45_7">Conector_Rj45 Cat 7</option>
+                    <option value="Conector_Rj45_6">Conector Rj45 Cat 6</option>
+                    <option value="Conector_Rj45_7">Conector Rj45 Cat 7</option>
                     <option value="Cancamo">Cancamo</option>
-
                 </select>
             </div>
 
-            <!-- <div class="form-group">
-                <label for="nombre">Nombre del Artículo</label>
-                <input 
-                    type="text" 
-                    id="nombre" 
-                    placeholder="Ej: Tornillos M6"
-                    onkeypress="if(event.key === 'Enter') agregarArticulo()"
-                >
-            </div> -->
-
-            <style>
-                select {
-                    width: 100%;
-                    padding: 12px 16px;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 10px;
-                    font-size: 14px;
-                    transition: all 0.3s ease;
-                    background-color: white;
-                    cursor: pointer;
-                }
-
-                select:focus {
-                    outline: none;
-                    border-color: #3b82f6;
-                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-                }
-            </style>
-
             <div class="form-group">
-                <label for="cantidad">Cantidad</label>
-                <input type="text" id="cantidad" placeholder="Ej: 50 unidades"
+                <label for="cantidadArticulo">Cantidad</label>
+                <input type="text" id="cantidadArticulo" placeholder="Ej: 50 unidades"
                     onkeypress="if(event.key === 'Enter') agregarArticulo()">
             </div>
 
             <button class="btn-add" onclick="agregarArticulo()">+ Agregar Artículo</button>
 
             <div class="lista-articulos" id="listaArticulos">
-                <div class="empty-message">No hay artículos registrados</div>
+                <div class="empty-message">No hay artículos</div>
             </div>
         </div>
 
+        <!-- Sección de Equipos -->
         <div class="card">
-            <h1>Registro de Equipos</h1>
-            <p class="subtitle">Registra tus Equipos y Mac</p>
+            <h1>🖥️ Equipos</h1>
+            <p class="subtitle">Registra equipos y MAC o SN</p>
 
             <div class="form-group">
-                <label for="nombre">Nombre del Artículo</label>
-                <select id="nombre" onchange="if(event.key !== 'Enter') verificarSeleccion()">
-                    <option value="">-- Selecciona un artículo --</option>
+                <label for="nombreEquipo">Nombre del Equipo</label>
+                <select id="nombreEquipo">
+                    <option value="">-- Selecciona un equipo --</option>
                     <option value="Ont">Ont</option>
                     <option value="Deco">Deco Mundo Go</option>
                     <option value="Extensor">Extensor</option>
-
-
                 </select>
             </div>
 
-            <!-- <div class="form-group">
-                <label for="nombre">Nombre del Artículo</label>
-                <input 
-                    type="text" 
-                    id="nombre" 
-                    placeholder="Ej: Tornillos M6"
-                    onkeypress="if(event.key === 'Enter') agregarArticulo()"
-                >
-            </div> -->
-
-            <style>
-                select {
-                    width: 100%;
-                    padding: 12px 16px;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 10px;
-                    font-size: 14px;
-                    transition: all 0.3s ease;
-                    background-color: white;
-                    cursor: pointer;
-                }
-
-                select:focus {
-                    outline: none;
-                    border-color: #3b82f6;
-                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-                }
-            </style>
-
             <div class="form-group">
-                <label for="cantidad">Mac</label>
-                <input type="text" id="cantidad" placeholder="Ej: 19:ab:cd:ef:gh:ij"
-                    onkeypress="if(event.key === 'Enter') agregarArticulo()">
+                <label for="macEquipo">MAC o SN</label>
+                <input type="text" id="macEquipo" placeholder="Ej: 19:ab:cd:ef:gh:ij"
+                    onkeypress="if(event.key === 'Enter') agregarEquipo()">
             </div>
 
-            <button class="btn-add" onclick="agregarArticulo()">+ Agregar Artículo</button>
+            <button class="btn-add" onclick="agregarEquipo()">+ Agregar Equipo</button>
 
-            <div class="lista-articulos" id="listaArticulos">
-                <div class="empty-message">No hay artículos registrados</div>
+            <div class="lista-articulos" id="listaEquipos">
+                <div class="empty-message">No hay equipos</div>
             </div>
         </div>
 
         <!-- Sección de Previsualización y Envío -->
         <div class="card">
-            <h1>Vista Previa</h1>
-            <p class="subtitle">Así se verá tu mensaje en WhatsApp</p>
+            <h1>👁️ Vista Previa</h1>
+            <p class="subtitle">Mensaje para WhatsApp</p>
 
             <div class="preview-section empty" id="previewSection">
-                Agrega artículos para ver la previsualización
+                Agrega artículos o equipos para ver la previsualización
             </div>
 
             <button class="btn-whatsapp" id="btnWhatsapp" onclick="enviarWhatsapp()" disabled>
@@ -381,10 +344,12 @@
 
     <script>
         let articulos = [];
+        let equipos = [];
 
+        // ===== ARTÍCULOS =====
         function agregarArticulo() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const cantidad = document.getElementById('cantidad').value.trim();
+            const nombre = document.getElementById('nombreArticulo').value.trim();
+            const cantidad = document.getElementById('cantidadArticulo').value.trim();
 
             if (nombre && cantidad) {
                 articulos.push({
@@ -393,26 +358,26 @@
                     cantidad: cantidad
                 });
 
-                document.getElementById('nombre').value = '';
-                document.getElementById('cantidad').value = '';
-                document.getElementById('nombre').focus();
+                document.getElementById('nombreArticulo').value = '';
+                document.getElementById('cantidadArticulo').value = '';
+                document.getElementById('nombreArticulo').focus();
 
-                actualizarLista();
+                actualizarListaArticulos();
                 actualizarPreview();
             }
         }
 
         function eliminarArticulo(id) {
             articulos = articulos.filter(art => art.id !== id);
-            actualizarLista();
+            actualizarListaArticulos();
             actualizarPreview();
         }
 
-        function actualizarLista() {
+        function actualizarListaArticulos() {
             const lista = document.getElementById('listaArticulos');
 
             if (articulos.length === 0) {
-                lista.innerHTML = '<div class="empty-message">No hay artículos registrados</div>';
+                lista.innerHTML = '<div class="empty-message">No hay artículos</div>';
                 return;
             }
 
@@ -427,37 +392,110 @@
             `).join('');
         }
 
+        // ===== EQUIPOS =====
+        function agregarEquipo() {
+            const nombre = document.getElementById('nombreEquipo').value.trim();
+            const mac = document.getElementById('macEquipo').value.trim();
+
+            if (nombre && mac) {
+                equipos.push({
+                    id: Date.now(),
+                    nombre: nombre,
+                    mac: mac
+                });
+
+                document.getElementById('nombreEquipo').value = '';
+                document.getElementById('macEquipo').value = '';
+                document.getElementById('nombreEquipo').focus();
+
+                actualizarListaEquipos();
+                actualizarPreview();
+            }
+        }
+
+        function eliminarEquipo(id) {
+            equipos = equipos.filter(eq => eq.id !== id);
+            actualizarListaEquipos();
+            actualizarPreview();
+        }
+
+        function actualizarListaEquipos() {
+            const lista = document.getElementById('listaEquipos');
+
+            if (equipos.length === 0) {
+                lista.innerHTML = '<div class="empty-message">No hay equipos</div>';
+                return;
+            }
+
+            lista.innerHTML = equipos.map(eq => `
+                <div class="articulo-item">
+                    <div class="articulo-info">
+                        <div class="articulo-nombre">${eq.nombre}</div>
+                        <div class="articulo-cantidad">${eq.mac}</div>
+                    </div>
+                    <button class="btn-delete" onclick="eliminarEquipo(${eq.id})">Eliminar</button>
+                </div>
+            `).join('');
+        }
+
+        // ===== PREVIEW Y WHATSAPP =====
         function actualizarPreview() {
             const preview = document.getElementById('previewSection');
             const btnWhatsapp = document.getElementById('btnWhatsapp');
 
-            if (articulos.length === 0) {
-                preview.innerHTML = 'Agrega artículos para ver la previsualización';
+            if (articulos.length === 0 && equipos.length === 0) {
+                preview.innerHTML = 'Agrega artículos o equipos para ver la previsualización';
                 preview.classList.add('empty');
                 btnWhatsapp.disabled = true;
                 return;
             }
 
             preview.classList.remove('empty');
-            let html = '<div class="preview-title">📦 LISTADO DE ARTÍCULOS</div><br>';
+            let html = '<div class="preview-title">📋 REGISTRO COMPLETO</div>';
 
-            articulos.forEach((art, idx) => {
-                html += `<div class="preview-item">${idx + 1}. ${art.nombre} - Cantidad: ${art.cantidad}</div>`;
-            });
+            if (articulos.length > 0) {
+                html += '<div class="preview-section-title">📦 ARTÍCULOS</div>';
+                articulos.forEach((art, idx) => {
+                    html += `<div class="preview-item">${idx + 1}. ${art.nombre} - ${art.cantidad}</div>`;
+                });
+            }
 
-            html += '<div class="preview-footer">✅ Registro de artículos completado</div>';
+            if (equipos.length > 0) {
+                html += '<div class="preview-section-title">🖥️ EQUIPOS</div>';
+                equipos.forEach((eq, idx) => {
+                    html += `<div class="preview-item">${idx + 1}. ${eq.nombre}</div>`;
+                    html += `<div class="preview-item" style="margin-left: 16px; font-size: 12px;">MAC: ${eq.mac}</div>`;
+                });
+            }
+
+            html += '<div class="preview-footer">✅ Registro completado</div>';
             preview.innerHTML = html;
             btnWhatsapp.disabled = false;
         }
 
         function generarMensaje() {
-            if (articulos.length === 0) return '';
+            if (articulos.length === 0 && equipos.length === 0) return '';
 
-            let mensaje = '📦 *LISTADO DE ARTÍCULOS*\n\n';
-            articulos.forEach((art, idx) => {
-                mensaje += `${idx + 1}. ${art.nombre} - Cantidad: ${art.cantidad}\n`;
-            });
-            mensaje += '\n✅ Registro de artículos completado';
+            let mensaje = '📋 *REGISTRO COMPLETO*\n\n';
+
+            if (articulos.length > 0) {
+                mensaje += '📦 *ARTÍCULOS*\n';
+                articulos.forEach((art, idx) => {
+                    mensaje += `${idx + 1}. ${art.nombre} - ${art.cantidad}\n`;
+                });
+                mensaje += '\n';
+            }
+
+            if (equipos.length > 0) {
+                mensaje += '🖥️ *EQUIPOS*\n';
+                equipos.forEach((eq, idx) => {
+                    mensaje += `${idx + 1}. ${eq.nombre}\n`;
+                    mensaje += `   MAC: ${eq.mac}\n`;
+                });
+                mensaje += '\n';
+            }
+
+            mensaje += '✅ Registro completado';
 
             return mensaje;
         }

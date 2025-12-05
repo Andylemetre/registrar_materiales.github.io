@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Artículos y Equipos - WhatsApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/@zxing/library@0.20.0"></script>
     <style>
         * {
             margin: 0;
@@ -109,6 +111,30 @@
             background: #2563eb;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-scanner {
+            width: 100%;
+            padding: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+
+        .btn-scanner:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-scanner.active {
+            background: #22c55e;
         }
 
         .lista-articulos {
@@ -243,9 +269,153 @@
             cursor: not-allowed;
         }
 
-        .section-divider {
-            border-bottom: 1px solid #e2e8f0;
-            margin: 12px 0;
+        /* ESTILOS DEL MODAL SCANNER */
+        .modal-scanner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-scanner.active {
+            display: flex;
+        }
+
+        .scanner-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .scanner-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            box-shadow: 0 0 10px #22c55e;
+            animation: scanning 2s infinite;
+        }
+
+        @keyframes scanning {
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px #22c55e;
+            }
+
+            50% {
+                box-shadow: 0 0 20px #22c55e;
+            }
+        }
+
+        .scanner-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 400px;
+            height: 200px;
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+
+        .scanner-corners {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #22c55e;
+        }
+
+        .corner.top-left {
+            top: -8px;
+            left: -8px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner.top-right {
+            top: -8px;
+            right: -8px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner.bottom-left {
+            bottom: -8px;
+            left: -8px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner.bottom-right {
+            bottom: -8px;
+            right: -8px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .scanner-text {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #22c55e;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+
+        .scanner-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .scanner-close:hover {
+            background: #dc2626;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -256,6 +426,10 @@
         <div class="card">
             <h1>📦 Artículos</h1>
             <p class="subtitle">Registra artículos y cantidad</p>
+
+            <button class="btn-scanner" id="btnScannerArticulo" onclick="abrirScannerArticulo()">
+                📷 Escanear Código
+            </button>
 
             <div class="form-group">
                 <label for="nombreArticulo">Nombre del Artículo</label>
@@ -302,7 +476,11 @@
         <!-- Sección de Equipos -->
         <div class="card">
             <h1>🖥️ Equipos</h1>
-            <p class="subtitle">Registra equipos y MAC o SN</p>
+            <p class="subtitle">Registra equipos y MAC</p>
+
+            <button class="btn-scanner" id="btnScannerEquipo" onclick="abrirScannerEquipo()">
+                📷 Escanear Código
+            </button>
 
             <div class="form-group">
                 <label for="nombreEquipo">Nombre del Equipo</label>
@@ -315,7 +493,7 @@
             </div>
 
             <div class="form-group">
-                <label for="macEquipo">MAC o SN</label>
+                <label for="macEquipo">MAC</label>
                 <input type="text" id="macEquipo" placeholder="Ej: 19:ab:cd:ef:gh:ij"
                     onkeypress="if(event.key === 'Enter') agregarEquipo()">
             </div>
@@ -342,9 +520,200 @@
         </div>
     </div>
 
+    <!-- MODAL SCANNER -->
+    <div id="modalScanner" class="modal-scanner">
+        <button class="scanner-close" onclick="cerrarScanner()">&times;</button>
+        <div class="scanner-container">
+            <video id="video" playsinline autoplay muted></video>
+            <canvas id="canvas"></canvas>
+
+            <div class="scanner-frame">
+                <div class="scanner-corners">
+                    <div class="corner top-left"></div>
+                    <div class="corner top-right"></div>
+                    <div class="corner bottom-left"></div>
+                    <div class="corner bottom-right"></div>
+                </div>
+            </div>
+
+            <div class="scanner-line"></div>
+            <div class="scanner-text">📸 Apunta al código de barras</div>
+        </div>
+    </div>
+
     <script>
+        const ZXing = window.ZXing;
         let articulos = [];
         let equipos = [];
+        let codeReader = null;
+        let scannerActivo = false;
+        let tipoScannerActual = null;
+        let stream = null;
+
+        // Inicializar el lector
+        function inicializarLector() {
+            if (!codeReader) {
+                codeReader = new ZXing.BrowserQRCodeReader();
+            }
+        }
+
+        // ===== SCANNER =====
+        function abrirScannerArticulo() {
+            tipoScannerActual = 'articulo';
+            abrirScanner();
+        }
+
+        function abrirScannerEquipo() {
+            tipoScannerActual = 'equipo';
+            abrirScanner();
+        }
+
+        function abrirScanner() {
+            inicializarLector();
+            const modal = document.getElementById('modalScanner');
+            const video = document.getElementById('video');
+
+            modal.classList.add('active');
+            scannerActivo = true;
+
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            }).then(s => {
+                stream = s;
+                video.srcObject = stream;
+                iniciarDeteccion();
+            }).catch(err => {
+                alert('Error al acceder a la cámara: ' + err.message);
+                cerrarScanner();
+            });
+        }
+
+        function cerrarScanner() {
+            const modal = document.getElementById('modalScanner');
+            modal.classList.remove('active');
+            scannerActivo = false;
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+
+        function iniciarDeteccion() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            function detectar() {
+                if (!scannerActivo) {
+                    return;
+                }
+
+                if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                    requestAnimationFrame(detectar);
+                    return;
+                }
+
+                try {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+
+                    if (canvas.width === 0 || canvas.height === 0) {
+                        requestAnimationFrame(detectar);
+                        return;
+                    }
+
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const codigo = decodificarCodigoBarras(imageData);
+
+                    if (codigo) {
+                        procesarCodigoDetectado(codigo);
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Error en detección:', err);
+                }
+
+                if (scannerActivo) {
+                    requestAnimationFrame(detectar);
+                }
+            }
+
+            // Esperar a que el video esté listo
+            video.onloadedmetadata = function () {
+                detectar();
+            };
+        }
+
+        function decodificarCodigoBarras(imageData) {
+            const data = imageData.data;
+            const canvas = document.getElementById('canvas');
+            const altura = canvas.height;
+            const ancho = canvas.width;
+
+            // Analizar la línea central
+            const lineaCentral = Math.floor(altura / 2);
+            const inicio = lineaCentral * ancho * 4;
+            const fin = inicio + ancho * 4;
+
+            let barras = '';
+            let ultimoValor = null;
+            let conteo = 0;
+
+            for (let i = inicio; i < fin; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const brillo = (r + g + b) / 3;
+                const esOscuro = brillo < 128;
+
+                if (ultimoValor === null) {
+                    ultimoValor = esOscuro;
+                    conteo = 1;
+                } else if (ultimoValor === esOscuro) {
+                    conteo++;
+                } else {
+                    barras += conteo.toString(16);
+                    ultimoValor = esOscuro;
+                    conteo = 1;
+                }
+            }
+            barras += conteo.toString(16);
+
+            // Detectar patrones
+            const patrones = {
+                '10101': '0', '1011': '1', '1101': '2', '11011': '3',
+                '1111': '4', '110111': '5', '100111': '6', '111101': '7',
+                '111011': '8', '110101': '9'
+            };
+
+            let resultado = '';
+            for (let patron in patrones) {
+                if (barras.includes(patron)) {
+                    resultado += patrones[patron];
+                    if (resultado.length >= 8) break;
+                }
+            }
+
+            return resultado.length >= 6 ? resultado : null;
+        }
+
+        function procesarCodigoDetectado(codigo) {
+            cerrarScanner();
+
+            if (tipoScannerActual === 'articulo') {
+                document.getElementById('nombreArticulo').value = codigo;
+                document.getElementById('cantidadArticulo').focus();
+            } else if (tipoScannerActual === 'equipo') {
+                document.getElementById('macEquipo').value = codigo;
+                document.getElementById('nombreEquipo').focus();
+            }
+        }
 
         // ===== ARTÍCULOS =====
         function agregarArticulo() {
