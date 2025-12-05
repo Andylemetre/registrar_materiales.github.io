@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Artículos - WhatsApp</title>
+    <title>Gestor de Artículos y Equipos - WhatsApp</title>
     <style>
         * {
             margin: 0;
@@ -20,11 +20,17 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -66,61 +72,23 @@
             margin-bottom: 8px;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s ease;
+            background-color: white;
+            cursor: pointer;
         }
 
-        input:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            padding: 12px 16px;
-            background: none;
-            border: none;
-            color: #64748b;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            white-space: nowrap;
-        }
-
-        .tab-btn.active {
-            color: #3b82f6;
-            border-bottom-color: #3b82f6;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .scanner-hint {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 4px;
-            font-style: italic;
         }
 
         .btn-add {
@@ -141,34 +109,6 @@
             background: #2563eb;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-add:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-        }
-
-        .btn-camera {
-            width: 100%;
-            padding: 12px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            margin-bottom: 8px;
-        }
-
-        .btn-camera:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-        }
-
-        .btn-camera.active {
-            background: #22c55e;
         }
 
         .lista-articulos {
@@ -208,13 +148,6 @@
             color: #64748b;
         }
 
-        .articulo-codigo {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-top: 4px;
-            font-family: monospace;
-        }
-
         .btn-delete {
             background: #ef4444;
             color: white;
@@ -245,7 +178,7 @@
             flex: 1;
             overflow-y: auto;
             margin-bottom: 24px;
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.8;
             color: #1e293b;
         }
@@ -261,10 +194,19 @@
         .preview-title {
             font-weight: bold;
             margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .preview-section-title {
+            font-weight: bold;
+            color: #059669;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            font-size: 13px;
         }
 
         .preview-item {
-            margin: 8px 0;
+            margin: 4px 0;
         }
 
         .preview-footer {
@@ -301,216 +243,97 @@
             cursor: not-allowed;
         }
 
-        .scanner-feedback {
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            text-align: center;
-            font-size: 13px;
-            display: none;
-        }
-
-        .scanner-feedback.success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-            display: block;
-        }
-
-        .scanner-feedback.error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-            display: block;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            border: none;
-            background: none;
-            padding: 0;
-            z-index: 1001;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-close:hover {
-            color: #ddd;
-        }
-
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        #canvas {
-            display: none;
-        }
-
-        .scanner-frame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 50%;
-            border: 3px solid #22c55e;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.7), inset 0 0 20px rgba(34, 197, 94, 0.3);
-            border-radius: 8px;
-            pointer-events: none;
-        }
-
-        .scanner-text {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            text-align: center;
-            font-size: 16px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 16px 24px;
-            border-radius: 8px;
-        }
-
-        .scanning-indicator {
-            color: white;
-            font-size: 18px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
+        .section-divider {
+            border-bottom: 1px solid #e2e8f0;
+            margin: 12px 0;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Sección de Entrada -->
+        <!-- Sección de Artículos -->
         <div class="card">
-            <h1>Gestor de Artículos</h1>
-            <p class="subtitle">Registra tus artículos manualmente o con cámara</p>
+            <h1>📦 Artículos</h1>
+            <p class="subtitle">Registra artículos y cantidad</p>
 
-            <div class="tabs">
-                <button class="tab-btn active" onclick="cambiarTab('manual')">✏️ Manual</button>
-                <button class="tab-btn" onclick="cambiarTab('camera')">📷 Cámara</button>
-                <button class="tab-btn" onclick="cambiarTab('scanner')">📱 Entrada USB</button>
+            <div class="form-group">
+                <label for="nombreArticulo">Nombre del Artículo</label>
+                <select id="nombreArticulo">
+                    <option value="">-- Selecciona un artículo --</option>
+                    <option value="Grampas_Blanca">Grampas Blancas RG6</option>
+                    <option value="Grampas_Negras">Grampas Negras RG6</option>
+                    <option value="Grampas_Negras_Cable_Drop">Grampas Negras Cable Drop</option>
+                    <option value="Tornillos">Tornillos</option>
+                    <option value="Tarugos">Tarugos</option>
+                    <option value="Pasa_Cable_Blanco">Pasa Cable Blanco</option>
+                    <option value="Pasa_Cable_Negro">Pasa Cable Negro</option>
+                    <option value="Fichas_amarillas">Fichas Amarillas</option>
+                    <option value="Telefonos_Operaciones">Telefonos Operaciones</option>
+                    <option value="Jumper">Jumper</option>
+                    <option value="Rosetas">Rosetas Opticas</option>
+                    <option value="Rosetas_telefonicas">Rosetas Telefonicas</option>
+                    <option value="Kit_Nap">Kit Nap</option>
+                    <option value="Latiguillos90">Latiguillos de 90</option>
+                    <option value="Latiguillos120">Latiguillos de 120</option>
+                    <option value="Latiguillos500">Latiguillos de 500</option>
+                    <option value="Latiguillos1000">Latiguillos de 1000</option>
+                    <option value="Cable_utp_gris6">Cable utp gris Cat 6</option>
+                    <option value="Cable_utp_gris7">Cable utp Cat 7</option>
+                    <option value="Conector_Rj45_6">Conector Rj45 Cat 6</option>
+                    <option value="Conector_Rj45_7">Conector Rj45 Cat 7</option>
+                    <option value="Cancamo">Cancamo</option>
+                </select>
             </div>
 
-            <!-- TAB: Entrada Manual -->
-            <div id="tab-manual" class="tab-content active">
-                <div class="form-group">
-                    <label for="nombre">Nombre del Artículo</label>
-                    <input type="text" id="nombre" placeholder="Ej: Tornillos M6"
-                        onkeypress="if(event.key === 'Enter') agregarArticulo()">
-                </div>
-
-                <div class="form-group">
-                    <label for="cantidad">Cantidad</label>
-                    <input type="text" id="cantidad" placeholder="Ej: 50 unidades"
-                        onkeypress="if(event.key === 'Enter') agregarArticulo()">
-                </div>
-
-                <button class="btn-add" onclick="agregarArticulo()">+ Agregar Artículo</button>
+            <div class="form-group">
+                <label for="cantidadArticulo">Cantidad</label>
+                <input type="text" id="cantidadArticulo" placeholder="Ej: 50 unidades"
+                    onkeypress="if(event.key === 'Enter') agregarArticulo()">
             </div>
 
-            <!-- TAB: Lector de Código con Cámara -->
-            <div id="tab-camera" class="tab-content">
-                <button class="btn-camera" id="btnCamera" onclick="abrirCamara()">📷 Abrir Cámara</button>
-
-                <div class="form-group">
-                    <label for="codigo-detectado">Código Detectado</label>
-                    <input type="text" id="codigo-detectado" readonly placeholder="El código se mostrará aquí">
-                </div>
-
-                <div class="form-group">
-                    <label for="cantidad-camera">Cantidad</label>
-                    <input type="text" id="cantidad-camera" placeholder="Ej: 50 unidades"
-                        onkeypress="if(event.key === 'Enter') agregarDesdeCamara()">
-                </div>
-
-                <button class="btn-add" onclick="agregarDesdeCamara()">+ Agregar desde Código</button>
-                <div id="camera-feedback" class="scanner-feedback"></div>
-            </div>
-
-            <!-- TAB: Entrada USB -->
-            <div id="tab-scanner" class="tab-content">
-                <div class="form-group">
-                    <label for="barcode-input">Lector de Código USB/Pistola</label>
-                    <input type="text" id="barcode-input" placeholder="Haz clic aquí y escanea un código de barras"
-                        onkeypress="if(event.key === 'Enter') procesarCodigoBarras()">
-                    <p class="scanner-hint">💡 Conecta tu lector USB/pistola de códigos antes de usar</p>
-                    <div id="usb-feedback" class="scanner-feedback"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="cantidad-scanner">Cantidad</label>
-                    <input type="text" id="cantidad-scanner" placeholder="Ej: 50 unidades"
-                        onkeypress="if(event.key === 'Enter') agregarDesdeScanner()">
-                </div>
-
-                <button class="btn-add" onclick="agregarDesdeScanner()">+ Agregar desde Código</button>
-            </div>
+            <button class="btn-add" onclick="agregarArticulo()">+ Agregar Artículo</button>
 
             <div class="lista-articulos" id="listaArticulos">
-                <div class="empty-message">No hay artículos registrados</div>
+                <div class="empty-message">No hay artículos</div>
+            </div>
+        </div>
+
+        <!-- Sección de Equipos -->
+        <div class="card">
+            <h1>🖥️ Equipos</h1>
+            <p class="subtitle">Registra equipos y MAC o SN</p>
+
+            <div class="form-group">
+                <label for="nombreEquipo">Nombre del Equipo</label>
+                <select id="nombreEquipo">
+                    <option value="">-- Selecciona un equipo --</option>
+                    <option value="Ont">Ont</option>
+                    <option value="Deco">Deco Mundo Go</option>
+                    <option value="Extensor">Extensor</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="macEquipo">MAC o SN</label>
+                <input type="text" id="macEquipo" placeholder="Ej: 19:ab:cd:ef:gh:ij"
+                    onkeypress="if(event.key === 'Enter') agregarEquipo()">
+            </div>
+
+            <button class="btn-add" onclick="agregarEquipo()">+ Agregar Equipo</button>
+
+            <div class="lista-articulos" id="listaEquipos">
+                <div class="empty-message">No hay equipos</div>
             </div>
         </div>
 
         <!-- Sección de Previsualización y Envío -->
         <div class="card">
-            <h1>Vista Previa</h1>
-            <p class="subtitle">Así se verá tu mensaje en WhatsApp</p>
+            <h1>👁️ Vista Previa</h1>
+            <p class="subtitle">Mensaje para WhatsApp</p>
 
             <div class="preview-section empty" id="previewSection">
-                Agrega artículos para ver la previsualización
+                Agrega artículos o equipos para ver la previsualización
             </div>
 
             <button class="btn-whatsapp" id="btnWhatsapp" onclick="enviarWhatsapp()" disabled>
@@ -519,293 +342,42 @@
         </div>
     </div>
 
-    <!-- Modal para la cámara -->
-    <div id="cameraModal" class="modal">
-        <div class="modal-content">
-            <video id="video" playsinline autoplay muted></video>
-            <canvas id="canvas"></canvas>
-            <div class="scanner-frame"></div>
-            <div class="scanner-text">
-                <div class="scanning-indicator">📸 Apunta a un código de barras</div>
-            </div>
-            <button class="modal-close" onclick="cerrarCamara()">&times;</button>
-        </div>
-    </div>
-
     <script>
         let articulos = [];
-        let ultimoCodigoBarras = '';
-        let cameraAbierta = false;
-        let stream = null;
-        let lastDetectionTime = 0;
+        let equipos = [];
 
-        function cambiarTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            event.target.classList.add('active');
-
-            if (cameraAbierta && tab !== 'camera') {
-                cerrarCamara();
-            }
-        }
-
-        function abrirCamara() {
-            const modal = document.getElementById('cameraModal');
-            const video = document.getElementById('video');
-            const btnCamera = document.getElementById('btnCamera');
-
-            if (cameraAbierta) {
-                cerrarCamara();
-                return;
-            }
-
-            navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
-            })
-                .then(function (s) {
-                    stream = s;
-                    video.srcObject = stream;
-                    modal.classList.add('active');
-                    cameraAbierta = true;
-                    btnCamera.classList.add('active');
-                    btnCamera.textContent = '❌ Cerrar Cámara';
-
-                    video.onloadedmetadata = function () {
-                        iniciarDeteccion();
-                    };
-                })
-                .catch(function (err) {
-                    alert('Error al acceder a la cámara: ' + err.message);
-                    console.error(err);
-                });
-        }
-
-        function cerrarCamara() {
-            const modal = document.getElementById('cameraModal');
-            const btnCamera = document.getElementById('btnCamera');
-
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-
-            modal.classList.remove('active');
-            cameraAbierta = false;
-            btnCamera.classList.remove('active');
-            btnCamera.textContent = '📷 Abrir Cámara';
-        }
-
-        function iniciarDeteccion() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-
-            function detectarCodigo() {
-                if (!cameraAbierta || !video.readyState === video.HAVE_ENOUGH_DATA) {
-                    requestAnimationFrame(detectarCodigo);
-                    return;
-                }
-
-                const now = Date.now();
-                if (now - lastDetectionTime < 500) {
-                    requestAnimationFrame(detectarCodigo);
-                    return;
-                }
-                lastDetectionTime = now;
-
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                try {
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const codigo = leerCodigoBarras(imageData);
-
-                    if (codigo && codigo.length > 3) {
-                        ultimoCodigoBarras = codigo;
-                        document.getElementById('codigo-detectado').value = codigo;
-
-                        const feedback = document.getElementById('camera-feedback');
-                        feedback.classList.remove('error');
-                        feedback.classList.add('success');
-                        feedback.textContent = '✓ Código detectado: ' + codigo;
-                    }
-                } catch (e) {
-                    console.error('Error en detección:', e);
-                }
-
-                if (cameraAbierta) {
-                    requestAnimationFrame(detectarCodigo);
-                }
-            }
-
-            detectarCodigo();
-        }
-
-        function leerCodigoBarras(imageData) {
-            const data = imageData.data;
-            let barras = '';
-
-            const canvas = document.getElementById('canvas');
-            const middleRow = Math.floor(canvas.height / 2);
-            const rowStart = middleRow * canvas.width * 4;
-            const rowEnd = rowStart + canvas.width * 4;
-
-            for (let i = rowStart; i < rowEnd; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                const brightness = (r + g + b) / 3;
-                barras += brightness > 128 ? '1' : '0';
-            }
-
-            const patterns = [
-                { code: '101', num: '0' },
-                { code: '1011', num: '1' },
-                { code: '1101', num: '2' },
-                { code: '11011', num: '3' },
-                { code: '1111', num: '4' },
-                { code: '110111', num: '5' },
-                { code: '100111', num: '6' },
-                { code: '111101', num: '7' },
-                { code: '111011', num: '8' },
-                { code: '110101', num: '9' }
-            ];
-
-            let resultado = '';
-            for (let pattern of patterns) {
-                if (barras.includes(pattern.code)) {
-                    resultado += pattern.num;
-                }
-            }
-
-            return resultado.slice(0, 13);
-        }
-
-        function agregarDesdeCamara() {
-            const cantidad = document.getElementById('cantidad-camera').value.trim();
-            const feedback = document.getElementById('camera-feedback');
-
-            if (!ultimoCodigoBarras) {
-                feedback.classList.remove('success');
-                feedback.classList.add('error');
-                feedback.textContent = '✗ Primero debes escanear un código con la cámara';
-                return;
-            }
-
-            if (cantidad) {
-                articulos.push({
-                    id: Date.now(),
-                    nombre: ultimoCodigoBarras,
-                    cantidad: cantidad,
-                    esCodigoBarras: true
-                });
-
-                document.getElementById('codigo-detectado').value = '';
-                document.getElementById('cantidad-camera').value = '';
-                ultimoCodigoBarras = '';
-                feedback.classList.remove('error', 'success');
-                feedback.textContent = '';
-
-                actualizarLista();
-                actualizarPreview();
-            } else {
-                feedback.classList.remove('success');
-                feedback.classList.add('error');
-                feedback.textContent = '✗ Ingresa una cantidad';
-            }
-        }
-
-        function procesarCodigoBarras() {
-            const codigo = document.getElementById('barcode-input').value.trim();
-            const feedback = document.getElementById('usb-feedback');
-
-            if (codigo) {
-                ultimoCodigoBarras = codigo;
-                feedback.classList.remove('error');
-                feedback.classList.add('success');
-                feedback.textContent = '✓ Código registrado: ' + codigo;
-                document.getElementById('barcode-input').value = '';
-                document.getElementById('cantidad-scanner').focus();
-            } else {
-                feedback.classList.remove('success');
-                feedback.classList.add('error');
-                feedback.textContent = '✗ Por favor, escanea un código de barras';
-            }
-        }
-
-        function agregarDesdeScanner() {
-            const cantidad = document.getElementById('cantidad-scanner').value.trim();
-            const feedback = document.getElementById('usb-feedback');
-
-            if (!ultimoCodigoBarras) {
-                feedback.classList.remove('success');
-                feedback.classList.add('error');
-                feedback.textContent = '✗ Primero debes escanear un código de barras';
-                return;
-            }
-
-            if (cantidad) {
-                articulos.push({
-                    id: Date.now(),
-                    nombre: ultimoCodigoBarras,
-                    cantidad: cantidad,
-                    esCodigoBarras: true
-                });
-
-                document.getElementById('cantidad-scanner').value = '';
-                ultimoCodigoBarras = '';
-                feedback.classList.remove('error', 'success');
-                feedback.textContent = '';
-
-                actualizarLista();
-                actualizarPreview();
-                document.getElementById('barcode-input').focus();
-            } else {
-                feedback.classList.remove('success');
-                feedback.classList.add('error');
-                feedback.textContent = '✗ Ingresa una cantidad';
-            }
-        }
-
+        // ===== ARTÍCULOS =====
         function agregarArticulo() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const cantidad = document.getElementById('cantidad').value.trim();
+            const nombre = document.getElementById('nombreArticulo').value.trim();
+            const cantidad = document.getElementById('cantidadArticulo').value.trim();
 
             if (nombre && cantidad) {
                 articulos.push({
                     id: Date.now(),
                     nombre: nombre,
-                    cantidad: cantidad,
-                    esCodigoBarras: false
+                    cantidad: cantidad
                 });
 
-                document.getElementById('nombre').value = '';
-                document.getElementById('cantidad').value = '';
-                document.getElementById('nombre').focus();
+                document.getElementById('nombreArticulo').value = '';
+                document.getElementById('cantidadArticulo').value = '';
+                document.getElementById('nombreArticulo').focus();
 
-                actualizarLista();
+                actualizarListaArticulos();
                 actualizarPreview();
             }
         }
 
         function eliminarArticulo(id) {
             articulos = articulos.filter(art => art.id !== id);
-            actualizarLista();
+            actualizarListaArticulos();
             actualizarPreview();
         }
 
-        function actualizarLista() {
+        function actualizarListaArticulos() {
             const lista = document.getElementById('listaArticulos');
 
             if (articulos.length === 0) {
-                lista.innerHTML = '<div class="empty-message">No hay artículos registrados</div>';
+                lista.innerHTML = '<div class="empty-message">No hay artículos</div>';
                 return;
             }
 
@@ -814,44 +386,116 @@
                     <div class="articulo-info">
                         <div class="articulo-nombre">${art.nombre}</div>
                         <div class="articulo-cantidad">${art.cantidad}</div>
-                        ${art.esCodigoBarras ? '<div class="articulo-codigo">📱 Escaneado</div>' : ''}
                     </div>
                     <button class="btn-delete" onclick="eliminarArticulo(${art.id})">Eliminar</button>
                 </div>
             `).join('');
         }
 
+        // ===== EQUIPOS =====
+        function agregarEquipo() {
+            const nombre = document.getElementById('nombreEquipo').value.trim();
+            const mac = document.getElementById('macEquipo').value.trim();
+
+            if (nombre && mac) {
+                equipos.push({
+                    id: Date.now(),
+                    nombre: nombre,
+                    mac: mac
+                });
+
+                document.getElementById('nombreEquipo').value = '';
+                document.getElementById('macEquipo').value = '';
+                document.getElementById('nombreEquipo').focus();
+
+                actualizarListaEquipos();
+                actualizarPreview();
+            }
+        }
+
+        function eliminarEquipo(id) {
+            equipos = equipos.filter(eq => eq.id !== id);
+            actualizarListaEquipos();
+            actualizarPreview();
+        }
+
+        function actualizarListaEquipos() {
+            const lista = document.getElementById('listaEquipos');
+
+            if (equipos.length === 0) {
+                lista.innerHTML = '<div class="empty-message">No hay equipos</div>';
+                return;
+            }
+
+            lista.innerHTML = equipos.map(eq => `
+                <div class="articulo-item">
+                    <div class="articulo-info">
+                        <div class="articulo-nombre">${eq.nombre}</div>
+                        <div class="articulo-cantidad">${eq.mac}</div>
+                    </div>
+                    <button class="btn-delete" onclick="eliminarEquipo(${eq.id})">Eliminar</button>
+                </div>
+            `).join('');
+        }
+
+        // ===== PREVIEW Y WHATSAPP =====
         function actualizarPreview() {
             const preview = document.getElementById('previewSection');
             const btnWhatsapp = document.getElementById('btnWhatsapp');
 
-            if (articulos.length === 0) {
-                preview.innerHTML = 'Agrega artículos para ver la previsualización';
+            if (articulos.length === 0 && equipos.length === 0) {
+                preview.innerHTML = 'Agrega artículos o equipos para ver la previsualización';
                 preview.classList.add('empty');
                 btnWhatsapp.disabled = true;
                 return;
             }
 
             preview.classList.remove('empty');
-            let html = '<div class="preview-title">📦 LISTADO DE ARTÍCULOS</div><br>';
+            let html = '<div class="preview-title">📋 REGISTRO COMPLETO</div>';
 
-            articulos.forEach((art, idx) => {
-                html += `<div class="preview-item">${idx + 1}. ${art.nombre} - Cantidad: ${art.cantidad}</div>`;
-            });
+            if (articulos.length > 0) {
+                html += '<div class="preview-section-title">📦 ARTÍCULOS</div>';
+                articulos.forEach((art, idx) => {
+                    html += `<div class="preview-item">${idx + 1}. ${art.nombre} - ${art.cantidad}</div>`;
+                });
+            }
 
-            html += '<div class="preview-footer">✅ Registro de artículos completado</div>';
+            if (equipos.length > 0) {
+                html += '<div class="preview-section-title">🖥️ EQUIPOS</div>';
+                equipos.forEach((eq, idx) => {
+                    html += `<div class="preview-item">${idx + 1}. ${eq.nombre}</div>`;
+                    html += `<div class="preview-item" style="margin-left: 16px; font-size: 12px;">MAC: ${eq.mac}</div>`;
+                });
+            }
+
+            html += '<div class="preview-footer">✅ Registro completado</div>';
             preview.innerHTML = html;
             btnWhatsapp.disabled = false;
         }
 
         function generarMensaje() {
-            if (articulos.length === 0) return '';
+            if (articulos.length === 0 && equipos.length === 0) return '';
 
-            let mensaje = '📦 *LISTADO DE ARTÍCULOS*\n\n';
-            articulos.forEach((art, idx) => {
-                mensaje += `${idx + 1}. ${art.nombre} - Cantidad: ${art.cantidad}\n`;
-            });
-            mensaje += '\n✅ Registro de artículos completado';
+            let mensaje = '📋 *REGISTRO COMPLETO*\n\n';
+
+            if (articulos.length > 0) {
+                mensaje += '📦 *ARTÍCULOS*\n';
+                articulos.forEach((art, idx) => {
+                    mensaje += `${idx + 1}. ${art.nombre} - ${art.cantidad}\n`;
+                });
+                mensaje += '\n';
+            }
+
+            if (equipos.length > 0) {
+                mensaje += '🖥️ *EQUIPOS*\n';
+                equipos.forEach((eq, idx) => {
+                    mensaje += `${idx + 1}. ${eq.nombre}\n`;
+                    mensaje += `   MAC: ${eq.mac}\n`;
+                });
+                mensaje += '\n';
+            }
+
+            mensaje += '✅ Registro completado';
 
             return mensaje;
         }
