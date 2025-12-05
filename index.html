@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Artículos - WhatsApp</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -87,6 +88,7 @@
             gap: 8px;
             margin-bottom: 20px;
             border-bottom: 2px solid #e2e8f0;
+            overflow-x: auto;
         }
 
         .tab-btn {
@@ -100,6 +102,7 @@
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
             margin-bottom: -2px;
+            white-space: nowrap;
         }
 
         .tab-btn.active {
@@ -123,6 +126,48 @@
         #barcode-input {
             font-size: 16px;
             font-weight: bold;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        #video {
+            width: 100%;
+            height: 300px;
+            display: block;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #3b82f6;
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.3);
+            pointer-events: none;
+        }
+
+        .scanner-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 60%;
+            border: 3px solid #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+            border-radius: 8px;
         }
 
         .scanner-hint {
@@ -150,6 +195,34 @@
             background: #2563eb;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-add:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .btn-camera {
+            width: 100%;
+            padding: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+        }
+
+        .btn-camera:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-camera.active {
+            background: #22c55e;
         }
 
         .lista-articulos {
@@ -304,6 +377,77 @@
             border: 1px solid #fecaca;
             display: block;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            color: #94a3b8;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .modal-close:hover {
+            color: #1e293b;
+        }
+
+        .scanning-indicator {
+            text-align: center;
+            padding: 16px;
+            background: #dcfce7;
+            border-radius: 8px;
+            color: #166534;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .scanning-indicator.active {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
     </style>
 </head>
 
@@ -312,11 +456,12 @@
         <!-- Sección de Entrada -->
         <div class="card">
             <h1>Gestor de Artículos</h1>
-            <p class="subtitle">Registra tus artículos manualmente o con lector de código</p>
+            <p class="subtitle">Registra tus artículos manualmente o con cámara</p>
 
             <div class="tabs">
                 <button class="tab-btn active" onclick="cambiarTab('manual')">✏️ Manual</button>
-                <button class="tab-btn" onclick="cambiarTab('scanner')">📱 Lector de Código</button>
+                <button class="tab-btn" onclick="cambiarTab('camera')">📷 Cámara</button>
+                <button class="tab-btn" onclick="cambiarTab('scanner')">📱 Entrada USB</button>
             </div>
 
             <!-- TAB: Entrada Manual -->
@@ -336,14 +481,34 @@
                 <button class="btn-add" onclick="agregarArticulo()">+ Agregar Artículo</button>
             </div>
 
-            <!-- TAB: Lector de Código -->
+            <!-- TAB: Lector de Código con Cámara -->
+            <div id="tab-camera" class="tab-content">
+                <button class="btn-camera" id="btnCamera" onclick="abrirCamara()">📷 Abrir Cámara</button>
+                <div id="scanning-indicator" class="scanning-indicator">📸 Escaneando...</div>
+
+                <div class="form-group">
+                    <label for="codigo-detectado">Código Detectado</label>
+                    <input type="text" id="codigo-detectado" readonly placeholder="El código se mostrará aquí">
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidad-camera">Cantidad</label>
+                    <input type="text" id="cantidad-camera" placeholder="Ej: 50 unidades"
+                        onkeypress="if(event.key === 'Enter') agregarDesdeCamara()">
+                </div>
+
+                <button class="btn-add" onclick="agregarDesdeCamara()">+ Agregar desde Código</button>
+                <div id="camera-feedback" class="scanner-feedback"></div>
+            </div>
+
+            <!-- TAB: Entrada USB -->
             <div id="tab-scanner" class="tab-content">
                 <div class="scanner-container">
-                    <label for="barcode-input">Lector de Código de Barras</label>
+                    <label for="barcode-input">Lector de Código USB/Pistola</label>
                     <input type="text" id="barcode-input" placeholder="Haz clic aquí y escanea un código de barras"
                         onkeypress="if(event.key === 'Enter') procesarCodigoBarras()">
-                    <p class="scanner-hint">💡 El lector de código de barras debe estar conectado a tu dispositivo</p>
-                    <div id="scanner-feedback" class="scanner-feedback"></div>
+                    <p class="scanner-hint">💡 Conecta tu lector USB/pistola de códigos antes de usar</p>
+                    <div id="usb-feedback" class="scanner-feedback"></div>
                 </div>
 
                 <div class="form-group">
@@ -375,9 +540,29 @@
         </div>
     </div>
 
+    <!-- Modal para la cámara -->
+    <div id="cameraModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarCamara()">&times;</button>
+            <h2 style="margin-bottom: 16px; color: #1e293b;">Escanear Código de Barras</h2>
+            <div class="camera-container">
+                <video id="video" playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div class="scanner-overlay">
+                    <div class="scanner-frame"></div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #64748b; font-size: 13px; margin-top: 12px;">
+                Apunta la cámara hacia el código de barras
+            </p>
+        </div>
+    </div>
+
     <script>
         let articulos = [];
         let ultimoCodigoBarras = '';
+        let cameraAbierta = false;
+        let stream = null;
 
         function cambiarTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -386,14 +571,137 @@
             document.getElementById(`tab-${tab}`).classList.add('active');
             event.target.classList.add('active');
 
-            if (tab === 'scanner') {
-                setTimeout(() => document.getElementById('barcode-input').focus(), 100);
+            if (cameraAbierta && tab !== 'camera') {
+                cerrarCamara();
+            }
+        }
+
+        function abrirCamara() {
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('video');
+            const btnCamera = document.getElementById('btnCamera');
+
+            if (cameraAbierta) {
+                cerrarCamara();
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function (s) {
+                    stream = s;
+                    video.srcObject = stream;
+                    modal.classList.add('active');
+                    cameraAbierta = true;
+                    btnCamera.classList.add('active');
+                    btnCamera.textContent = '❌ Cerrar Cámara';
+                    document.getElementById('scanning-indicator').classList.add('active');
+                    iniciarDeteccion();
+                })
+                .catch(function (err) {
+                    alert('Error al acceder a la cámara: ' + err.message);
+                });
+        }
+
+        function cerrarCamara() {
+            const modal = document.getElementById('cameraModal');
+            const btnCamera = document.getElementById('btnCamera');
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            modal.classList.remove('active');
+            cameraAbierta = false;
+            btnCamera.classList.remove('active');
+            btnCamera.textContent = '📷 Abrir Cámara';
+            document.getElementById('scanning-indicator').classList.remove('active');
+        }
+
+        function iniciarDeteccion() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            function detectarCodigo() {
+                if (!cameraAbierta) return;
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                try {
+                    Quagga.decodeSingle({
+                        src: canvas.toDataURL('image/png'),
+                        numOfWorkers: 0,
+                        inputStream: {
+                            size: 800
+                        },
+                        decoder: {
+                            readers: ['ean_reader', 'ean_8_reader', 'code_128_reader', 'code_39_reader', 'upc_reader']
+                        }
+                    }, function (result) {
+                        if (result && result.codeResult) {
+                            ultimoCodigoBarras = result.codeResult.code;
+                            document.getElementById('codigo-detectado').value = ultimoCodigoBarras;
+
+                            const feedback = document.getElementById('camera-feedback');
+                            feedback.classList.remove('error');
+                            feedback.classList.add('success');
+                            feedback.textContent = '✓ Código detectado: ' + ultimoCodigoBarras;
+
+                            document.getElementById('cantidad-camera').focus();
+                        }
+                    });
+                } catch (e) {
+                    // Error silencioso para no saturar la consola
+                }
+
+                if (cameraAbierta) {
+                    setTimeout(detectarCodigo, 500);
+                }
+            }
+
+            detectarCodigo();
+        }
+
+        function agregarDesdeCamara() {
+            const cantidad = document.getElementById('cantidad-camera').value.trim();
+            const feedback = document.getElementById('camera-feedback');
+
+            if (!ultimoCodigoBarras) {
+                feedback.classList.remove('success');
+                feedback.classList.add('error');
+                feedback.textContent = '✗ Primero debes escanear un código con la cámara';
+                return;
+            }
+
+            if (cantidad) {
+                articulos.push({
+                    id: Date.now(),
+                    nombre: ultimoCodigoBarras,
+                    cantidad: cantidad,
+                    esCodigoBarras: true
+                });
+
+                document.getElementById('codigo-detectado').value = '';
+                document.getElementById('cantidad-camera').value = '';
+                ultimoCodigoBarras = '';
+                feedback.classList.remove('error', 'success');
+                feedback.textContent = '';
+
+                actualizarLista();
+                actualizarPreview();
+            } else {
+                feedback.classList.remove('success');
+                feedback.classList.add('error');
+                feedback.textContent = '✗ Ingresa una cantidad';
             }
         }
 
         function procesarCodigoBarras() {
             const codigo = document.getElementById('barcode-input').value.trim();
-            const feedback = document.getElementById('scanner-feedback');
+            const feedback = document.getElementById('usb-feedback');
 
             if (codigo) {
                 ultimoCodigoBarras = codigo;
@@ -411,7 +719,7 @@
 
         function agregarDesdeScanner() {
             const cantidad = document.getElementById('cantidad-scanner').value.trim();
-            const feedback = document.getElementById('scanner-feedback');
+            const feedback = document.getElementById('usb-feedback');
 
             if (!ultimoCodigoBarras) {
                 feedback.classList.remove('success');
