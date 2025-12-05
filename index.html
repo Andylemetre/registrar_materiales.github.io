@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Artículos - WhatsApp</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -116,58 +114,6 @@
 
         .tab-content.active {
             display: block;
-        }
-
-        .scanner-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        #barcode-input {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .camera-container {
-            position: relative;
-            width: 100%;
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        #video {
-            width: 100%;
-            height: 300px;
-            display: block;
-        }
-
-        #canvas {
-            display: none;
-        }
-
-        .scanner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 2px solid #3b82f6;
-            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.3);
-            pointer-events: none;
-        }
-
-        .scanner-frame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 60%;
-            border: 3px solid #22c55e;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
-            border-radius: 8px;
         }
 
         .scanner-hint {
@@ -386,54 +332,88 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.95);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            z-index: 1001;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-close {
-            float: right;
-            font-size: 24px;
-            font-weight: bold;
-            color: #94a3b8;
-            cursor: pointer;
-            border: none;
-            background: none;
-            padding: 0;
-        }
-
         .modal-close:hover {
-            color: #1e293b;
+            color: #ddd;
         }
 
-        .scanning-indicator {
-            text-align: center;
-            padding: 16px;
-            background: #dcfce7;
-            border-radius: 8px;
-            color: #166534;
-            font-weight: 600;
-            margin-bottom: 12px;
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #canvas {
             display: none;
         }
 
-        .scanning-indicator.active {
-            display: block;
+        .scanner-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 50%;
+            border: 3px solid #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.7), inset 0 0 20px rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .scanner-text {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 16px 24px;
+            border-radius: 8px;
+        }
+
+        .scanning-indicator {
+            color: white;
+            font-size: 18px;
             animation: pulse 1.5s infinite;
         }
 
@@ -484,7 +464,6 @@
             <!-- TAB: Lector de Código con Cámara -->
             <div id="tab-camera" class="tab-content">
                 <button class="btn-camera" id="btnCamera" onclick="abrirCamara()">📷 Abrir Cámara</button>
-                <div id="scanning-indicator" class="scanning-indicator">📸 Escaneando...</div>
 
                 <div class="form-group">
                     <label for="codigo-detectado">Código Detectado</label>
@@ -503,7 +482,7 @@
 
             <!-- TAB: Entrada USB -->
             <div id="tab-scanner" class="tab-content">
-                <div class="scanner-container">
+                <div class="form-group">
                     <label for="barcode-input">Lector de Código USB/Pistola</label>
                     <input type="text" id="barcode-input" placeholder="Haz clic aquí y escanea un código de barras"
                         onkeypress="if(event.key === 'Enter') procesarCodigoBarras()">
@@ -543,18 +522,13 @@
     <!-- Modal para la cámara -->
     <div id="cameraModal" class="modal">
         <div class="modal-content">
-            <button class="modal-close" onclick="cerrarCamara()">&times;</button>
-            <h2 style="margin-bottom: 16px; color: #1e293b;">Escanear Código de Barras</h2>
-            <div class="camera-container">
-                <video id="video" playsinline></video>
-                <canvas id="canvas"></canvas>
-                <div class="scanner-overlay">
-                    <div class="scanner-frame"></div>
-                </div>
+            <video id="video" playsinline autoplay muted></video>
+            <canvas id="canvas"></canvas>
+            <div class="scanner-frame"></div>
+            <div class="scanner-text">
+                <div class="scanning-indicator">📸 Apunta a un código de barras</div>
             </div>
-            <p style="text-align: center; color: #64748b; font-size: 13px; margin-top: 12px;">
-                Apunta la cámara hacia el código de barras
-            </p>
+            <button class="modal-close" onclick="cerrarCamara()">&times;</button>
         </div>
     </div>
 
@@ -563,6 +537,7 @@
         let ultimoCodigoBarras = '';
         let cameraAbierta = false;
         let stream = null;
+        let lastDetectionTime = 0;
 
         function cambiarTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -586,7 +561,13 @@
                 return;
             }
 
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            })
                 .then(function (s) {
                     stream = s;
                     video.srcObject = stream;
@@ -594,11 +575,14 @@
                     cameraAbierta = true;
                     btnCamera.classList.add('active');
                     btnCamera.textContent = '❌ Cerrar Cámara';
-                    document.getElementById('scanning-indicator').classList.add('active');
-                    iniciarDeteccion();
+
+                    video.onloadedmetadata = function () {
+                        iniciarDeteccion();
+                    };
                 })
                 .catch(function (err) {
                     alert('Error al acceder a la cámara: ' + err.message);
+                    console.error(err);
                 });
         }
 
@@ -615,7 +599,6 @@
             cameraAbierta = false;
             btnCamera.classList.remove('active');
             btnCamera.textContent = '📷 Abrir Cámara';
-            document.getElementById('scanning-indicator').classList.remove('active');
         }
 
         function iniciarDeteccion() {
@@ -624,45 +607,85 @@
             const ctx = canvas.getContext('2d');
 
             function detectarCodigo() {
-                if (!cameraAbierta) return;
+                if (!cameraAbierta || !video.readyState === video.HAVE_ENOUGH_DATA) {
+                    requestAnimationFrame(detectarCodigo);
+                    return;
+                }
+
+                const now = Date.now();
+                if (now - lastDetectionTime < 500) {
+                    requestAnimationFrame(detectarCodigo);
+                    return;
+                }
+                lastDetectionTime = now;
 
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                 try {
-                    Quagga.decodeSingle({
-                        src: canvas.toDataURL('image/png'),
-                        numOfWorkers: 0,
-                        inputStream: {
-                            size: 800
-                        },
-                        decoder: {
-                            readers: ['ean_reader', 'ean_8_reader', 'code_128_reader', 'code_39_reader', 'upc_reader']
-                        }
-                    }, function (result) {
-                        if (result && result.codeResult) {
-                            ultimoCodigoBarras = result.codeResult.code;
-                            document.getElementById('codigo-detectado').value = ultimoCodigoBarras;
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const codigo = leerCodigoBarras(imageData);
 
-                            const feedback = document.getElementById('camera-feedback');
-                            feedback.classList.remove('error');
-                            feedback.classList.add('success');
-                            feedback.textContent = '✓ Código detectado: ' + ultimoCodigoBarras;
+                    if (codigo && codigo.length > 3) {
+                        ultimoCodigoBarras = codigo;
+                        document.getElementById('codigo-detectado').value = codigo;
 
-                            document.getElementById('cantidad-camera').focus();
-                        }
-                    });
+                        const feedback = document.getElementById('camera-feedback');
+                        feedback.classList.remove('error');
+                        feedback.classList.add('success');
+                        feedback.textContent = '✓ Código detectado: ' + codigo;
+                    }
                 } catch (e) {
-                    // Error silencioso para no saturar la consola
+                    console.error('Error en detección:', e);
                 }
 
                 if (cameraAbierta) {
-                    setTimeout(detectarCodigo, 500);
+                    requestAnimationFrame(detectarCodigo);
                 }
             }
 
             detectarCodigo();
+        }
+
+        function leerCodigoBarras(imageData) {
+            const data = imageData.data;
+            let barras = '';
+
+            const canvas = document.getElementById('canvas');
+            const middleRow = Math.floor(canvas.height / 2);
+            const rowStart = middleRow * canvas.width * 4;
+            const rowEnd = rowStart + canvas.width * 4;
+
+            for (let i = rowStart; i < rowEnd; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const brightness = (r + g + b) / 3;
+                barras += brightness > 128 ? '1' : '0';
+            }
+
+            const patterns = [
+                { code: '101', num: '0' },
+                { code: '1011', num: '1' },
+                { code: '1101', num: '2' },
+                { code: '11011', num: '3' },
+                { code: '1111', num: '4' },
+                { code: '110111', num: '5' },
+                { code: '100111', num: '6' },
+                { code: '111101', num: '7' },
+                { code: '111011', num: '8' },
+                { code: '110101', num: '9' }
+            ];
+
+            let resultado = '';
+            for (let pattern of patterns) {
+                if (barras.includes(pattern.code)) {
+                    resultado += pattern.num;
+                }
+            }
+
+            return resultado.slice(0, 13);
         }
 
         function agregarDesdeCamara() {
