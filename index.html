@@ -91,31 +91,6 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .input-group input {
-            flex: 1;
-        }
-
-        .input-group button {
-            padding: 12px 16px;
-            background: #8b5cf6;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .input-group button:hover {
-            background: #7c3aed;
-        }
-
         .btn-add {
             width: 100%;
             padding: 12px;
@@ -284,6 +259,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            margin-bottom: 12px;
         }
 
         .btn-sheets:hover:not(:disabled) {
@@ -297,9 +273,32 @@
             cursor: not-allowed;
         }
 
-        .section-divider {
-            border-bottom: 1px solid #e2e8f0;
-            margin: 12px 0;
+        .btn-excel {
+            width: 100%;
+            padding: 16px;
+            background: #c41e3a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-excel:hover:not(:disabled) {
+            background: #a01729;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(196, 30, 58, 0.3);
+        }
+
+        .btn-excel:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
         }
 
         .modal {
@@ -338,6 +337,7 @@
         .modal h2 {
             margin-bottom: 20px;
             color: #1e293b;
+            margin-top: 0;
         }
 
         .modal-input {
@@ -486,30 +486,13 @@
                 ✔ Enviar por WhatsApp
             </button>
 
-            <button class="btn-sheets" id="btnSheets" onclick="abrirModalSheets()" disabled>
-                📊 Guardar en Google Sheets
-            </button>
-
-            <button class="btn-sheets" id="btnExcel" onclick="abrirModalExcel()" disabled
-                style="background: #c41e3a; margin-top: 12px;">
+            <button class="btn-excel" id="btnExcel" onclick="abrirModalExcel()" disabled>
                 📥 Descargar Excel
             </button>
-        </div>
-    </div>
 
-    <!-- Modal para Google Sheets -->
-    <div id="sheetsModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="cerrarModalSheets()">&times;</span>
-            <h2>📊 Google Sheets</h2>
-            <p style="margin-bottom: 15px; color: #64748b;">Elige qué quieres hacer:</p>
-            <div class="modal-buttons">
-                <button class="btn-cancel" onclick="cerrarModalSheets()">Cancelar</button>
-                <button class="btn-confirm" onclick="crearGoogleSheet()"
-                    style="background: #4285F4; border: none;">Crear Nueva</button>
-                <button class="btn-confirm" onclick="guardarEnSheets()" style="background: #1f8e3d; border: none;">En
-                    Hoja Existente</button>
-            </div>
+            <button class="btn-sheets" id="btnSheets" onclick="abrirModalSheets()" disabled>
+                📊 Google Sheets
+            </button>
         </div>
     </div>
 
@@ -521,10 +504,10 @@
             <p style="margin-bottom: 15px; color: #64748b;">¿Qué deseas hacer?</p>
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="cerrarModalExcel()">Cancelar</button>
-                <button class="btn-confirm" onclick="descargarExcel()" style="background: #c41e3a; border: none;">Solo
+                <button class="btn-confirm" onclick="descargarExcel()" style="background: #c41e3a;">Solo
                     Descargar</button>
-                <button class="btn-confirm" onclick="descargarYEnviarWhatsapp()"
-                    style="background: #22c55e; border: none;">Descargar y Enviar por WhatsApp</button>
+                <button class="btn-confirm" onclick="descargarYEnviarWhatsapp()" style="background: #22c55e;">+
+                    WhatsApp</button>
             </div>
             <p style="margin-top: 15px; font-size: 12px; color: #94a3b8;">
                 ℹ️ Descargar: Solo guarda el archivo en tu computadora<br>
@@ -533,7 +516,22 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <!-- Modal para Google Sheets -->
+    <div id="sheetsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModalSheets()">&times;</span>
+            <h2>📊 Google Sheets</h2>
+            <p style="margin-bottom: 15px; color: #64748b;">Elige qué quieres hacer:</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="cerrarModalSheets()">Cancelar</button>
+                <button class="btn-confirm" onclick="crearGoogleSheet()" style="background: #4285F4;">Crear
+                    Nueva</button>
+                <button class="btn-confirm" onclick="guardarEnSheets()" style="background: #1f8e3d;">Hoja
+                    Existente</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let articulos = [];
         let equipos = [];
@@ -731,85 +729,7 @@
             }
         }
 
-        // ===== GOOGLE SHEETS =====
-        function abrirModalSheets() {
-            document.getElementById('sheetsModal').style.display = 'block';
-        }
-
-        function cerrarModalSheets() {
-            document.getElementById('sheetsModal').style.display = 'none';
-            document.getElementById('sheetsUrl').value = '';
-        }
-
-        function guardarEnSheets() {
-            const url = document.getElementById('sheetsUrl').value.trim();
-
-            if (!url) {
-                alert('Por favor ingresa el URL de Google Sheets');
-                return;
-            }
-
-            // Extraer el ID de la hoja
-            const sheetId = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-            if (!sheetId) {
-                alert('URL de Google Sheets inválido');
-                return;
-            }
-
-            const spreadsheetId = sheetId[1];
-
-            // Preparar los datos
-            let datos = [];
-
-            // Encabezados
-            datos.push(['Fecha', 'Tipo', 'Descripción', 'Cantidad/MAC']);
-
-            // Agregar artículos
-            articulos.forEach(art => {
-                datos.push([
-                    new Date().toLocaleDateString('es-AR'),
-                    'Artículo',
-                    art.nombre,
-                    art.cantidad
-                ]);
-            });
-
-            // Agregar equipos
-            equipos.forEach(eq => {
-                datos.push([
-                    new Date().toLocaleDateString('es-AR'),
-                    'Equipo',
-                    eq.nombre,
-                    eq.mac
-                ]);
-            });
-
-            // Crear CSV para copiar manualmente
-            let csv = datos.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-
-            // Abrir en nueva pestaña con instrucciones
-            const mensaje = `
-Sigue estos pasos para guardar los datos en Google Sheets:
-
-1. Abre tu hoja de Google Sheets
-2. Copia estos datos:
-
-${datos.map(row => row.join('\t')).join('\n')}
-
-3. Pega los datos en tu hoja (Ctrl+V)
-4. Listo! Los datos estarán guardados
-
-Si prefieres, puedes hacer clic en el botón para abrir Google Sheets en una nueva ventana.
-            `;
-
-            alert(mensaje);
-
-            // Abrir Google Sheets
-            window.open(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`, '_blank');
-
-            cerrarModalSheets();
-        }
-
+        // ===== EXCEL =====
         function abrirModalExcel() {
             document.getElementById('excelModal').style.display = 'block';
         }
@@ -818,80 +738,55 @@ Si prefieres, puedes hacer clic en el botón para abrir Google Sheets en una nue
             document.getElementById('excelModal').style.display = 'none';
         }
 
+        function descargarExcel() {
+            let csv = 'FECHA,TIPO,DESCRIPCIÓN,CANTIDAD/MAC\n';
+
+            articulos.forEach(art => {
+                const fecha = new Date().toLocaleDateString('es-AR');
+                csv += `${fecha},Artículo,"${art.nombre}","${art.cantidad}"\n`;
+            });
+
+            equipos.forEach(eq => {
+                const fecha = new Date().toLocaleDateString('es-AR');
+                csv += `${fecha},Equipo,"${eq.nombre}","${eq.mac}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            const fecha = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Registro_Materiales_${fecha}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            cerrarModalExcel();
+        }
+
         function descargarYEnviarWhatsapp() {
-            // Primero descargar el excel
             descargarExcel();
 
-            // Luego abrir WhatsApp con un mensaje
-            cerrarModalExcel();
             setTimeout(() => {
-                const mensaje = '📊 He generado un archivo Excel con el registro de materiales y equipos. Descárgalo desde tu navegador y comparte este archivo.';
+                const mensaje = '📊 He generado un archivo Excel con el registro de materiales y equipos. Descárgalo y comparte este archivo.';
                 const mensajeEncodado = encodeURIComponent(mensaje);
                 window.open(`https://wa.me/?text=${mensajeEncodado}`, '_blank');
             }, 500);
         }
 
-        // Cerrar modal al hacer clic fuera
-        window.onclick = function (event) {
-            const sheetModal = document.getElementById('sheetsModal');
-            const excelModal = document.getElementById('excelModal');
-            if (event.target == sheetModal) {
-                cerrarModalSheets();
-            }
-            if (event.target == excelModal) {
-                cerrarModalExcel();
-            }
+        // ===== GOOGLE SHEETS =====
+        function abrirModalSheets() {
+            document.getElementById('sheetsModal').style.display = 'block';
         }
 
-        // ===== DESCARGAR EXCEL =====
-        function descargarExcel() {
-            // Preparar datos
-            let datos = [];
-
-            // Encabezados
-            datos.push(['FECHA', 'TIPO', 'DESCRIPCIÓN', 'CANTIDAD/MAC']);
-
-            // Agregar artículos
-            articulos.forEach(art => {
-                datos.push([
-                    new Date().toLocaleDateString('es-AR'),
-                    'Artículo',
-                    art.nombre,
-                    art.cantidad
-                ]);
-            });
-
-            // Agregar equipos
-            equipos.forEach(eq => {
-                datos.push([
-                    new Date().toLocaleDateString('es-AR'),
-                    'Equipo',
-                    eq.nombre,
-                    eq.mac
-                ]);
-            });
-
-            // Crear workbook
-            const ws = XLSX.utils.aoa_to_sheet(datos);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Registro");
-
-            // Ajustar ancho de columnas
-            ws['!cols'] = [
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 30 },
-                { wch: 25 }
-            ];
-
-            // Descargar
-            const fecha = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
-            XLSX.writeFile(wb, `Registro_Materiales_${fecha}.xlsx`);
+        function cerrarModalSheets() {
+            document.getElementById('sheetsModal').style.display = 'none';
         }
 
-        // ===== CREAR GOOGLE SHEET =====
         function crearGoogleSheet() {
-            // Preparar datos para copiar
             let datos = [];
             datos.push(['FECHA', 'TIPO', 'DESCRIPCIÓN', 'CANTIDAD/MAC']);
 
@@ -913,16 +808,43 @@ Si prefieres, puedes hacer clic en el botón para abrir Google Sheets en una nue
                 ]);
             });
 
-            // Copiar datos al portapapeles
             let datosFormato = datos.map(row => row.join('\t')).join('\n');
             navigator.clipboard.writeText(datosFormato).then(() => {
                 alert('✅ Datos copiados al portapapeles!\n\nAhora:\n1. Se abrirá Google Sheets\n2. Pega los datos (Ctrl+V)\n3. ¡Listo!');
-                // Abrir Google Sheets
                 window.open('https://docs.google.com/spreadsheets/create', '_blank');
+                cerrarModalSheets();
             }).catch(() => {
                 alert('❌ No se pudieron copiar los datos. Intenta manualmente.');
                 window.open('https://docs.google.com/spreadsheets/create', '_blank');
+                cerrarModalSheets();
             });
+        }
+
+        function guardarEnSheets() {
+            const url = prompt('Pega aquí el URL de tu Google Sheets:');
+            if (!url) return;
+
+            const sheetId = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+            if (!sheetId) {
+                alert('URL de Google Sheets inválido');
+                return;
+            }
+
+            alert('Para guardar en tu hoja:\n1. Copia los datos que aparecen\n2. Pega en tu Google Sheets\n\nGoogle Sheets se abrirá en una nueva pestaña');
+            window.open(`https://docs.google.com/spreadsheets/d/${sheetId[1]}/edit`, '_blank');
+            cerrarModalSheets();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function (event) {
+            const excelModal = document.getElementById('excelModal');
+            const sheetsModal = document.getElementById('sheetsModal');
+            if (event.target == excelModal) {
+                cerrarModalExcel();
+            }
+            if (event.target == sheetsModal) {
+                cerrarModalSheets();
+            }
         }
     </script>
 </body>
