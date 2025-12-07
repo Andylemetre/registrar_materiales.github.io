@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Artículos y Equipos - WhatsApp</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -357,6 +358,7 @@
         .modal-buttons {
             display: flex;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         .modal-buttons button {
@@ -367,6 +369,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 100px;
         }
 
         .btn-confirm {
@@ -386,6 +389,16 @@
         .btn-cancel:hover {
             background: #cbd5e1;
         }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -400,27 +413,27 @@
                 <label for="nombreArticulo">Elige el Material</label>
                 <select id="nombreArticulo" onchange="handleArticuloChange()">
                     <option value="">-- Selecciona un artículo --</option>
-                    <option value="Grampas_Blanca">Grampas Blancas RG6</option>
-                    <option value="Grampas_Negras">Grampas Negras RG6</option>
-                    <option value="Grampas_Negras_Cable_Drop">Grampas Negras Cable Drop</option>
+                    <option value="Grampas Blancas RG6">Grampas Blancas RG6</option>
+                    <option value="Grampas Negras RG6">Grampas Negras RG6</option>
+                    <option value="Grampas Negras Cable Drop">Grampas Negras Cable Drop</option>
                     <option value="Tornillos">Tornillos</option>
                     <option value="Tarugos">Tarugos</option>
-                    <option value="Pasa_Cable_Blanco">Pasa Cable Blanco</option>
-                    <option value="Pasa_Cable_Negro">Pasa Cable Negro</option>
-                    <option value="Fichas_amarillas">Fichas Amarillas</option>
-                    <option value="Telefonos_Operaciones">Telefonos Operaciones</option>
+                    <option value="Pasa Cable Blanco">Pasa Cable Blanco</option>
+                    <option value="Pasa Cable Negro">Pasa Cable Negro</option>
+                    <option value="Fichas Amarillas">Fichas Amarillas</option>
+                    <option value="Telefonos Operaciones">Telefonos Operaciones</option>
                     <option value="Jumper">Jumper</option>
-                    <option value="Rosetas">Rosetas Opticas</option>
-                    <option value="Rosetas_telefonicas">Rosetas Telefonicas</option>
-                    <option value="Kit_Nap">Kit Nap</option>
-                    <option value="Latiguillos90">Latiguillos de 90</option>
-                    <option value="Latiguillos120">Latiguillos de 120</option>
-                    <option value="Latiguillos500">Latiguillos de 500</option>
-                    <option value="Latiguillos1000">Latiguillos de 1000</option>
-                    <option value="Cable_utp_gris6">Cable utp gris Cat 6</option>
-                    <option value="Cable_utp_gris7">Cable utp Cat 7</option>
-                    <option value="Conector_Rj45_6">Conector Rj45 Cat 6</option>
-                    <option value="Conector_Rj45_7">Conector Rj45 Cat 7</option>
+                    <option value="Rosetas Opticas">Rosetas Opticas</option>
+                    <option value="Rosetas Telefonicas">Rosetas Telefonicas</option>
+                    <option value="Kit Nap">Kit Nap</option>
+                    <option value="Latiguillos de 90">Latiguillos de 90</option>
+                    <option value="Latiguillos de 120">Latiguillos de 120</option>
+                    <option value="Latiguillos de 500">Latiguillos de 500</option>
+                    <option value="Latiguillos de 1000">Latiguillos de 1000</option>
+                    <option value="Cable utp gris Cat 6">Cable utp gris Cat 6</option>
+                    <option value="Cable utp Cat 7">Cable utp Cat 7</option>
+                    <option value="Conector Rj45 Cat 6">Conector Rj45 Cat 6</option>
+                    <option value="Conector Rj45 Cat 7">Conector Rj45 Cat 7</option>
                     <option value="Cancamo">Cancamo</option>
                     <option value="otros">✏️ Otros materiales</option>
                 </select>
@@ -455,7 +468,7 @@
                 <select id="nombreEquipo">
                     <option value="">-- Selecciona un equipo --</option>
                     <option value="Ont">Ont</option>
-                    <option value="Deco">Deco Mundo Go</option>
+                    <option value="Deco Mundo Go">Deco Mundo Go</option>
                     <option value="Extensor">Extensor</option>
                 </select>
             </div>
@@ -490,8 +503,8 @@
                 📥 Descargar Excel
             </button>
 
-            <button class="btn-sheets" id="btnSheets" onclick="abrirModalSheets()" disabled>
-                📊 Google Sheets
+            <button class="btn-sheets" id="btnSheets" onclick="descargarGoogleSheet()" disabled>
+                📊 Descargar Google Sheets
             </button>
         </div>
     </div>
@@ -503,32 +516,15 @@
             <h2>📥 Descargar Excel</h2>
             <p style="margin-bottom: 15px; color: #64748b;">¿Qué deseas hacer?</p>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="cerrarModalExcel()">Cancelar</button>
+                <button class="btn-cancel" onclick="cerrarModalExcel()" style="flex: 1 1 100%;">Cancelar</button>
                 <button class="btn-confirm" onclick="descargarExcel()" style="background: #c41e3a;">Solo
                     Descargar</button>
-                <button class="btn-confirm" onclick="descargarYEnviarWhatsapp()" style="background: #22c55e;">+
-                    WhatsApp</button>
+                <button class="btn-confirm" onclick="descargarYEnviarWhatsapp()" style="background: #22c55e;">Descargar
+                    + WhatsApp</button>
             </div>
             <p style="margin-top: 15px; font-size: 12px; color: #94a3b8;">
-                ℹ️ Descargar: Solo guarda el archivo en tu computadora<br>
-                Descargar y Enviar: Abre WhatsApp para que compartas el archivo
+                ℹ️ Descarga el archivo Excel y luego podrás compartirlo por WhatsApp
             </p>
-        </div>
-    </div>
-
-    <!-- Modal para Google Sheets -->
-    <div id="sheetsModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="cerrarModalSheets()">&times;</span>
-            <h2>📊 Google Sheets</h2>
-            <p style="margin-bottom: 15px; color: #64748b;">Elige qué quieres hacer:</p>
-            <div class="modal-buttons">
-                <button class="btn-cancel" onclick="cerrarModalSheets()">Cancelar</button>
-                <button class="btn-confirm" onclick="crearGoogleSheet()" style="background: #4285F4;">Crear
-                    Nueva</button>
-                <button class="btn-confirm" onclick="guardarEnSheets()" style="background: #1f8e3d;">Hoja
-                    Existente</button>
-            </div>
         </div>
     </div>
 
@@ -538,11 +534,12 @@
 
         // ===== ARTÍCULOS =====
         function handleArticuloChange() {
-            const select = document.getElementById('nombreArticulo').value;
+            const select = document.getElementById('nombreArticulo');
+            const selectedValue = select.value;
             const otrosGroup = document.getElementById('otrosArticuloGroup');
             const otrosInput = document.getElementById('otrosArticulo');
 
-            if (select === 'otros') {
+            if (selectedValue === 'otros') {
                 otrosGroup.style.display = 'block';
                 otrosInput.focus();
             } else {
@@ -552,7 +549,8 @@
         }
 
         function agregarArticulo() {
-            let nombre = document.getElementById('nombreArticulo').value.trim();
+            const select = document.getElementById('nombreArticulo');
+            let nombre = select.value.trim();
             const cantidad = document.getElementById('cantidadArticulo').value.trim();
             const otrosInput = document.getElementById('otrosArticulo').value.trim();
 
@@ -564,22 +562,30 @@
                 nombre = otrosInput;
             }
 
-            if (nombre && nombre !== 'otros' && cantidad) {
-                articulos.push({
-                    id: Date.now(),
-                    nombre: nombre,
-                    cantidad: cantidad
-                });
-
-                document.getElementById('nombreArticulo').value = '';
-                document.getElementById('cantidadArticulo').value = '';
-                document.getElementById('otrosArticulo').value = '';
-                document.getElementById('otrosArticuloGroup').style.display = 'none';
-                document.getElementById('nombreArticulo').focus();
-
-                actualizarListaArticulos();
-                actualizarPreview();
+            if (!nombre || nombre === '' || nombre === 'otros') {
+                alert('Por favor selecciona un material');
+                return;
             }
+
+            if (!cantidad) {
+                alert('Por favor ingresa la cantidad');
+                return;
+            }
+
+            articulos.push({
+                id: Date.now(),
+                nombre: nombre,
+                cantidad: cantidad
+            });
+
+            select.value = '';
+            document.getElementById('cantidadArticulo').value = '';
+            document.getElementById('otrosArticulo').value = '';
+            document.getElementById('otrosArticuloGroup').style.display = 'none';
+            select.focus();
+
+            actualizarListaArticulos();
+            actualizarPreview();
         }
 
         function eliminarArticulo(id) {
@@ -592,7 +598,7 @@
             const lista = document.getElementById('listaArticulos');
 
             if (articulos.length === 0) {
-                lista.innerHTML = '<div class="empty-message">No hay artículos</div>';
+                lista.innerHTML = '<div class="empty-message">No hay materiales</div>';
                 return;
             }
 
@@ -609,23 +615,32 @@
 
         // ===== EQUIPOS =====
         function agregarEquipo() {
-            const nombre = document.getElementById('nombreEquipo').value.trim();
+            const select = document.getElementById('nombreEquipo');
+            const nombre = select.value.trim();
             const mac = document.getElementById('macEquipo').value.trim();
 
-            if (nombre && mac) {
-                equipos.push({
-                    id: Date.now(),
-                    nombre: nombre,
-                    mac: mac
-                });
-
-                document.getElementById('nombreEquipo').value = '';
-                document.getElementById('macEquipo').value = '';
-                document.getElementById('nombreEquipo').focus();
-
-                actualizarListaEquipos();
-                actualizarPreview();
+            if (!nombre) {
+                alert('Por favor selecciona un equipo');
+                return;
             }
+
+            if (!mac) {
+                alert('Por favor ingresa el MAC o SN');
+                return;
+            }
+
+            equipos.push({
+                id: Date.now(),
+                nombre: nombre,
+                mac: mac
+            });
+
+            select.value = '';
+            document.getElementById('macEquipo').value = '';
+            select.focus();
+
+            actualizarListaEquipos();
+            actualizarPreview();
         }
 
         function eliminarEquipo(id) {
@@ -673,7 +688,7 @@
             let html = '<div class="preview-title">📋 REGISTRO COMPLETO</div>';
 
             if (articulos.length > 0) {
-                html += '<div class="preview-section-title">📦 ARTÍCULOS</div>';
+                html += '<div class="preview-section-title">📦 MATERIALES</div>';
                 articulos.forEach((art, idx) => {
                     html += `<div class="preview-item">${idx + 1}. ${art.nombre} - ${art.cantidad}</div>`;
                 });
@@ -700,7 +715,7 @@
             let mensaje = '📋 *REGISTRO COMPLETO*\n\n';
 
             if (articulos.length > 0) {
-                mensaje += '📦 *ARTÍCULOS*\n';
+                mensaje += '📦 *MATERIALES*\n';
                 articulos.forEach((art, idx) => {
                     mensaje += `${idx + 1}. ${art.nombre} - ${art.cantidad}\n`;
                 });
@@ -739,30 +754,32 @@
         }
 
         function descargarExcel() {
-            let csv = 'FECHA,TIPO,DESCRIPCIÓN,CANTIDAD/MAC\n';
+            const wb = XLSX.utils.book_new();
+            const wsData = [['FECHA', 'TIPO', 'DESCRIPCIÓN', 'CANTIDAD/MAC']];
+
+            const fecha = new Date().toLocaleDateString('es-AR');
 
             articulos.forEach(art => {
-                const fecha = new Date().toLocaleDateString('es-AR');
-                csv += `${fecha},Artículo,"${art.nombre}","${art.cantidad}"\n`;
+                wsData.push([fecha, 'Material', art.nombre, art.cantidad]);
             });
 
             equipos.forEach(eq => {
-                const fecha = new Date().toLocaleDateString('es-AR');
-                csv += `${fecha},Equipo,"${eq.nombre}","${eq.mac}"\n`;
+                wsData.push([fecha, 'Equipo', eq.nombre, eq.mac]);
             });
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-            const fecha = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `Registro_Materiales_${fecha}.csv`);
-            link.style.visibility = 'hidden';
+            ws['!cols'] = [
+                { wch: 12 },
+                { wch: 12 },
+                { wch: 35 },
+                { wch: 25 }
+            ];
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            XLSX.utils.book_append_sheet(wb, ws, 'Registro');
+
+            const fechaArchivo = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+            XLSX.writeFile(wb, `Registro_Materiales_${fechaArchivo}.xlsx`);
 
             cerrarModalExcel();
         }
@@ -771,79 +788,77 @@
             descargarExcel();
 
             setTimeout(() => {
-                const mensaje = '📊 He generado un archivo Excel con el registro de materiales y equipos. Descárgalo y comparte este archivo.';
+                const mensaje = '📊 He generado un archivo Excel con el registro de materiales y equipos.\n\n' +
+                    '📥 El archivo se descargó en tu computadora.\n\n' +
+                    '💡 Para enviarlo:\n' +
+                    '1. Busca el archivo descargado\n' +
+                    '2. En WhatsApp, presiona el clip 📎\n' +
+                    '3. Selecciona "Documento"\n' +
+                    '4. Elige el archivo Excel';
+
                 const mensajeEncodado = encodeURIComponent(mensaje);
                 window.open(`https://wa.me/?text=${mensajeEncodado}`, '_blank');
             }, 500);
         }
 
         // ===== GOOGLE SHEETS =====
-        function abrirModalSheets() {
-            document.getElementById('sheetsModal').style.display = 'block';
-        }
+        function descargarGoogleSheet() {
+            const csvData = [];
+            csvData.push(['FECHA', 'TIPO', 'DESCRIPCIÓN', 'CANTIDAD/MAC']);
 
-        function cerrarModalSheets() {
-            document.getElementById('sheetsModal').style.display = 'none';
-        }
-
-        function crearGoogleSheet() {
-            let datos = [];
-            datos.push(['FECHA', 'TIPO', 'DESCRIPCIÓN', 'CANTIDAD/MAC']);
+            const fecha = new Date().toLocaleDateString('es-AR');
 
             articulos.forEach(art => {
-                datos.push([
-                    new Date().toLocaleDateString('es-AR'),
-                    'Artículo',
-                    art.nombre,
-                    art.cantidad
-                ]);
+                csvData.push([fecha, 'Material', art.nombre, art.cantidad]);
             });
 
             equipos.forEach(eq => {
-                datos.push([
-                    new Date().toLocaleDateString('es-AR'),
-                    'Equipo',
-                    eq.nombre,
-                    eq.mac
-                ]);
+                csvData.push([fecha, 'Equipo', eq.nombre, eq.mac]);
             });
 
-            let datosFormato = datos.map(row => row.join('\t')).join('\n');
-            navigator.clipboard.writeText(datosFormato).then(() => {
-                alert('✅ Datos copiados al portapapeles!\n\nAhora:\n1. Se abrirá Google Sheets\n2. Pega los datos (Ctrl+V)\n3. ¡Listo!');
-                window.open('https://docs.google.com/spreadsheets/create', '_blank');
-                cerrarModalSheets();
-            }).catch(() => {
-                alert('❌ No se pudieron copiar los datos. Intenta manualmente.');
-                window.open('https://docs.google.com/spreadsheets/create', '_blank');
-                cerrarModalSheets();
-            });
+            let csvContent = csvData.map(row => row.map(cell => {
+                const cellStr = String(cell);
+                if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+                    return '"' + cellStr.replace(/"/g, '""') + '"';
+                }
+                return cellStr;
+            }).join(',')).join('\n');
+
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            const fechaArchivo = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Registro_Materiales_${fechaArchivo}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            setTimeout(() => {
+                const mensaje = '📊 Archivo descargado!\n\n' +
+                    '✅ Para subirlo a Google Sheets:\n' +
+                    '1. Ve a sheets.google.com\n' +
+                    '2. Click en "Archivo" → "Importar"\n' +
+                    '3. Sube el archivo CSV descargado\n\n' +
+                    '💬 Para enviarlo por WhatsApp:\n' +
+                    '1. Abre WhatsApp Web o la app\n' +
+                    '2. Presiona el clip 📎\n' +
+                    '3. Selecciona "Documento"\n' +
+                    '4. Elige el archivo descargado';
+
+                const mensajeEncodado = encodeURIComponent(mensaje);
+                window.open(`https://wa.me/?text=${mensajeEncodado}`, '_blank');
+            }, 1000);
         }
 
-        function guardarEnSheets() {
-            const url = prompt('Pega aquí el URL de tu Google Sheets:');
-            if (!url) return;
-
-            const sheetId = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-            if (!sheetId) {
-                alert('URL de Google Sheets inválido');
-                return;
-            }
-
-            alert('Para guardar en tu hoja:\n1. Copia los datos que aparecen\n2. Pega en tu Google Sheets\n\nGoogle Sheets se abrirá en una nueva pestaña');
-            window.open(`https://docs.google.com/spreadsheets/d/${sheetId[1]}/edit`, '_blank');
-            cerrarModalSheets();
-        }
-
-        // Cerrar modal al hacer clic fuera
         window.onclick = function (event) {
             const excelModal = document.getElementById('excelModal');
-            const sheetsModal = document.getElementById('sheetsModal');
             if (event.target == excelModal) {
                 cerrarModalExcel();
-            }
-            if (event.target == sheetsModal) {
-                cerrarModalSheets();
             }
         }
     </script>
