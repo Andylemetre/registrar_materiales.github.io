@@ -91,6 +91,31 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .input-group button {
+            padding: 12px 16px;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group button:hover {
+            background: #7c3aed;
+        }
+
         .btn-add {
             width: 100%;
             padding: 12px;
@@ -230,6 +255,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            margin-bottom: 12px;
         }
 
         .btn-whatsapp:hover:not(:disabled) {
@@ -243,9 +269,122 @@
             cursor: not-allowed;
         }
 
+        .btn-sheets {
+            width: 100%;
+            padding: 16px;
+            background: #1f8e3d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-sheets:hover:not(:disabled) {
+            background: #17742e;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(31, 142, 61, 0.3);
+        }
+
+        .btn-sheets:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
         .section-divider {
             border-bottom: 1px solid #e2e8f0;
             margin: 12px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #1f8e3d;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-confirm {
+            background: #1f8e3d;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #17742e;
+        }
+
+        .btn-cancel {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
         }
     </style>
 </head>
@@ -259,7 +398,7 @@
 
             <div class="form-group">
                 <label for="nombreArticulo">Elige el Material</label>
-                <select id="nombreArticulo">
+                <select id="nombreArticulo" onchange="handleArticuloChange()">
                     <option value="">-- Selecciona un artículo --</option>
                     <option value="Grampas_Blanca">Grampas Blancas RG6</option>
                     <option value="Grampas_Negras">Grampas Negras RG6</option>
@@ -283,7 +422,14 @@
                     <option value="Conector_Rj45_6">Conector Rj45 Cat 6</option>
                     <option value="Conector_Rj45_7">Conector Rj45 Cat 7</option>
                     <option value="Cancamo">Cancamo</option>
+                    <option value="otros">✏️ Otros materiales</option>
                 </select>
+            </div>
+
+            <div id="otrosArticuloGroup" class="form-group" style="display: none;">
+                <label for="otrosArticulo">Nombre del Material</label>
+                <input type="text" id="otrosArticulo" placeholder="Ingresa el nombre del material"
+                    onkeypress="if(event.key === 'Enter') agregarArticulo()">
             </div>
 
             <div class="form-group">
@@ -337,21 +483,90 @@
             </div>
 
             <button class="btn-whatsapp" id="btnWhatsapp" onclick="enviarWhatsapp()" disabled>
-                ✓ Enviar por WhatsApp
+                ✔ Enviar por WhatsApp
+            </button>
+
+            <button class="btn-sheets" id="btnSheets" onclick="abrirModalSheets()" disabled>
+                📊 Guardar en Google Sheets
+            </button>
+
+            <button class="btn-sheets" id="btnExcel" onclick="abrirModalExcel()" disabled
+                style="background: #c41e3a; margin-top: 12px;">
+                📥 Descargar Excel
             </button>
         </div>
     </div>
 
+    <!-- Modal para Google Sheets -->
+    <div id="sheetsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModalSheets()">&times;</span>
+            <h2>📊 Google Sheets</h2>
+            <p style="margin-bottom: 15px; color: #64748b;">Elige qué quieres hacer:</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="cerrarModalSheets()">Cancelar</button>
+                <button class="btn-confirm" onclick="crearGoogleSheet()"
+                    style="background: #4285F4; border: none;">Crear Nueva</button>
+                <button class="btn-confirm" onclick="guardarEnSheets()" style="background: #1f8e3d; border: none;">En
+                    Hoja Existente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Excel -->
+    <div id="excelModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModalExcel()">&times;</span>
+            <h2>📥 Descargar Excel</h2>
+            <p style="margin-bottom: 15px; color: #64748b;">¿Qué deseas hacer?</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="cerrarModalExcel()">Cancelar</button>
+                <button class="btn-confirm" onclick="descargarExcel()" style="background: #c41e3a; border: none;">Solo
+                    Descargar</button>
+                <button class="btn-confirm" onclick="descargarYEnviarWhatsapp()"
+                    style="background: #22c55e; border: none;">Descargar y Enviar por WhatsApp</button>
+            </div>
+            <p style="margin-top: 15px; font-size: 12px; color: #94a3b8;">
+                ℹ️ Descargar: Solo guarda el archivo en tu computadora<br>
+                Descargar y Enviar: Abre WhatsApp para que compartas el archivo
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <script>
         let articulos = [];
         let equipos = [];
 
         // ===== ARTÍCULOS =====
-        function agregarArticulo() {
-            const nombre = document.getElementById('nombreArticulo').value.trim();
-            const cantidad = document.getElementById('cantidadArticulo').value.trim();
+        function handleArticuloChange() {
+            const select = document.getElementById('nombreArticulo').value;
+            const otrosGroup = document.getElementById('otrosArticuloGroup');
+            const otrosInput = document.getElementById('otrosArticulo');
 
-            if (nombre && cantidad) {
+            if (select === 'otros') {
+                otrosGroup.style.display = 'block';
+                otrosInput.focus();
+            } else {
+                otrosGroup.style.display = 'none';
+                otrosInput.value = '';
+            }
+        }
+
+        function agregarArticulo() {
+            let nombre = document.getElementById('nombreArticulo').value.trim();
+            const cantidad = document.getElementById('cantidadArticulo').value.trim();
+            const otrosInput = document.getElementById('otrosArticulo').value.trim();
+
+            if (nombre === 'otros') {
+                if (!otrosInput) {
+                    alert('Por favor ingresa el nombre del material');
+                    return;
+                }
+                nombre = otrosInput;
+            }
+
+            if (nombre && nombre !== 'otros' && cantidad) {
                 articulos.push({
                     id: Date.now(),
                     nombre: nombre,
@@ -360,6 +575,8 @@
 
                 document.getElementById('nombreArticulo').value = '';
                 document.getElementById('cantidadArticulo').value = '';
+                document.getElementById('otrosArticulo').value = '';
+                document.getElementById('otrosArticuloGroup').style.display = 'none';
                 document.getElementById('nombreArticulo').focus();
 
                 actualizarListaArticulos();
@@ -442,11 +659,15 @@
         function actualizarPreview() {
             const preview = document.getElementById('previewSection');
             const btnWhatsapp = document.getElementById('btnWhatsapp');
+            const btnSheets = document.getElementById('btnSheets');
+            const btnExcel = document.getElementById('btnExcel');
 
             if (articulos.length === 0 && equipos.length === 0) {
                 preview.innerHTML = 'Agrega artículos o equipos para ver la previsualización';
                 preview.classList.add('empty');
                 btnWhatsapp.disabled = true;
+                btnSheets.disabled = true;
+                btnExcel.disabled = true;
                 return;
             }
 
@@ -471,6 +692,8 @@
             html += '<div class="preview-footer">✅ Registro completado</div>';
             preview.innerHTML = html;
             btnWhatsapp.disabled = false;
+            btnSheets.disabled = false;
+            btnExcel.disabled = false;
         }
 
         function generarMensaje() {
@@ -506,6 +729,200 @@
                 const mensajeEncodado = encodeURIComponent(mensaje);
                 window.open(`https://wa.me/?text=${mensajeEncodado}`, '_blank');
             }
+        }
+
+        // ===== GOOGLE SHEETS =====
+        function abrirModalSheets() {
+            document.getElementById('sheetsModal').style.display = 'block';
+        }
+
+        function cerrarModalSheets() {
+            document.getElementById('sheetsModal').style.display = 'none';
+            document.getElementById('sheetsUrl').value = '';
+        }
+
+        function guardarEnSheets() {
+            const url = document.getElementById('sheetsUrl').value.trim();
+
+            if (!url) {
+                alert('Por favor ingresa el URL de Google Sheets');
+                return;
+            }
+
+            // Extraer el ID de la hoja
+            const sheetId = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+            if (!sheetId) {
+                alert('URL de Google Sheets inválido');
+                return;
+            }
+
+            const spreadsheetId = sheetId[1];
+
+            // Preparar los datos
+            let datos = [];
+
+            // Encabezados
+            datos.push(['Fecha', 'Tipo', 'Descripción', 'Cantidad/MAC']);
+
+            // Agregar artículos
+            articulos.forEach(art => {
+                datos.push([
+                    new Date().toLocaleDateString('es-AR'),
+                    'Artículo',
+                    art.nombre,
+                    art.cantidad
+                ]);
+            });
+
+            // Agregar equipos
+            equipos.forEach(eq => {
+                datos.push([
+                    new Date().toLocaleDateString('es-AR'),
+                    'Equipo',
+                    eq.nombre,
+                    eq.mac
+                ]);
+            });
+
+            // Crear CSV para copiar manualmente
+            let csv = datos.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            // Abrir en nueva pestaña con instrucciones
+            const mensaje = `
+Sigue estos pasos para guardar los datos en Google Sheets:
+
+1. Abre tu hoja de Google Sheets
+2. Copia estos datos:
+
+${datos.map(row => row.join('\t')).join('\n')}
+
+3. Pega los datos en tu hoja (Ctrl+V)
+4. Listo! Los datos estarán guardados
+
+Si prefieres, puedes hacer clic en el botón para abrir Google Sheets en una nueva ventana.
+            `;
+
+            alert(mensaje);
+
+            // Abrir Google Sheets
+            window.open(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`, '_blank');
+
+            cerrarModalSheets();
+        }
+
+        function abrirModalExcel() {
+            document.getElementById('excelModal').style.display = 'block';
+        }
+
+        function cerrarModalExcel() {
+            document.getElementById('excelModal').style.display = 'none';
+        }
+
+        function descargarYEnviarWhatsapp() {
+            // Primero descargar el excel
+            descargarExcel();
+
+            // Luego abrir WhatsApp con un mensaje
+            cerrarModalExcel();
+            setTimeout(() => {
+                const mensaje = '📊 He generado un archivo Excel con el registro de materiales y equipos. Descárgalo desde tu navegador y comparte este archivo.';
+                const mensajeEncodado = encodeURIComponent(mensaje);
+                window.open(`https://wa.me/?text=${mensajeEncodado}`, '_blank');
+            }, 500);
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function (event) {
+            const sheetModal = document.getElementById('sheetsModal');
+            const excelModal = document.getElementById('excelModal');
+            if (event.target == sheetModal) {
+                cerrarModalSheets();
+            }
+            if (event.target == excelModal) {
+                cerrarModalExcel();
+            }
+        }
+
+        // ===== DESCARGAR EXCEL =====
+        function descargarExcel() {
+            // Preparar datos
+            let datos = [];
+
+            // Encabezados
+            datos.push(['FECHA', 'TIPO', 'DESCRIPCIÓN', 'CANTIDAD/MAC']);
+
+            // Agregar artículos
+            articulos.forEach(art => {
+                datos.push([
+                    new Date().toLocaleDateString('es-AR'),
+                    'Artículo',
+                    art.nombre,
+                    art.cantidad
+                ]);
+            });
+
+            // Agregar equipos
+            equipos.forEach(eq => {
+                datos.push([
+                    new Date().toLocaleDateString('es-AR'),
+                    'Equipo',
+                    eq.nombre,
+                    eq.mac
+                ]);
+            });
+
+            // Crear workbook
+            const ws = XLSX.utils.aoa_to_sheet(datos);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Registro");
+
+            // Ajustar ancho de columnas
+            ws['!cols'] = [
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 30 },
+                { wch: 25 }
+            ];
+
+            // Descargar
+            const fecha = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+            XLSX.writeFile(wb, `Registro_Materiales_${fecha}.xlsx`);
+        }
+
+        // ===== CREAR GOOGLE SHEET =====
+        function crearGoogleSheet() {
+            // Preparar datos para copiar
+            let datos = [];
+            datos.push(['FECHA', 'TIPO', 'DESCRIPCIÓN', 'CANTIDAD/MAC']);
+
+            articulos.forEach(art => {
+                datos.push([
+                    new Date().toLocaleDateString('es-AR'),
+                    'Artículo',
+                    art.nombre,
+                    art.cantidad
+                ]);
+            });
+
+            equipos.forEach(eq => {
+                datos.push([
+                    new Date().toLocaleDateString('es-AR'),
+                    'Equipo',
+                    eq.nombre,
+                    eq.mac
+                ]);
+            });
+
+            // Copiar datos al portapapeles
+            let datosFormato = datos.map(row => row.join('\t')).join('\n');
+            navigator.clipboard.writeText(datosFormato).then(() => {
+                alert('✅ Datos copiados al portapapeles!\n\nAhora:\n1. Se abrirá Google Sheets\n2. Pega los datos (Ctrl+V)\n3. ¡Listo!');
+                // Abrir Google Sheets
+                window.open('https://docs.google.com/spreadsheets/create', '_blank');
+            }).catch(() => {
+                alert('❌ No se pudieron copiar los datos. Intenta manualmente.');
+                window.open('https://docs.google.com/spreadsheets/create', '_blank');
+            });
         }
     </script>
 </body>
